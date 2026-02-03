@@ -8,12 +8,13 @@
       class="w-full h-full bg-black"
     ></video>
 
-    <button
-      @click="start"
-      class="absolute bottom-4 left-4 bg-blue-500 text-white px-4 py-2 rounded"
+    <div
+      v-if="countDown > 0"
+      class="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50"
     >
-      Start
-    </button>
+      <div class="text-white text-6xl font-bold">{{ countDown }}</div>
+    </div>
+
     <button
       @click="stop"
       class="absolute bottom-4 right-4 bg-red-500 text-white px-4 py-2 rounded"
@@ -24,14 +25,16 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, onUnmounted } from "vue";
+import { ref, onMounted, onUnmounted } from "vue";
 
-const video = ref<HTMLVideoElement | null>(null);
 const videoComposable = useVideo();
 
+const video = ref<HTMLVideoElement | null>(null);
+const countDown = ref(3);
 let stream: MediaStream | null = null;
 let recorder: MediaRecorder | null = null;
 let chunks: Blob[] = [];
+let countdownInterval: NodeJS.Timeout | null = null;
 
 const start = async () => {
   stream = await navigator.mediaDevices.getUserMedia({
@@ -62,7 +65,24 @@ const stop = () => {
   stream.getTracks().forEach((t) => t.stop());
 };
 
+onMounted(() => {
+  countdownInterval = setInterval(() => {
+    countDown.value--;
+    if (countDown.value === 0) {
+      if (countdownInterval) {
+        clearInterval(countdownInterval);
+        countdownInterval = null;
+      }
+      start();
+    }
+  }, 1000);
+});
+
 onUnmounted(() => {
+  if (countdownInterval) {
+    clearInterval(countdownInterval);
+    countdownInterval = null;
+  }
   stream?.getTracks().forEach((t) => t.stop());
 });
 </script>
