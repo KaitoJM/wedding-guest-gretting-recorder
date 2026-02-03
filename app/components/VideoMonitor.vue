@@ -12,7 +12,7 @@
       v-if="countDown > 0"
       class="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50"
     >
-      <div class="text-white text-6xl font-bold">{{ countDown }}</div>
+      <div class="text-white text-[10rem] font-bold">{{ countDown }}</div>
     </div>
 
     <div
@@ -91,11 +91,12 @@ const stop = () => {
   }
 
   recorder.stop();
-  recorder.onstop = () => {
+  recorder.onstop = async () => {
     const blob = new Blob(chunks, { type: "video/webm" });
     console.log(blob);
-    videoComposable.saveVideo(blob);
+    await videoComposable.saveVideo(blob);
     chunks = [];
+    router.push("/");
   };
 
   stream.getTracks().forEach((t) => t.stop());
