@@ -23,4 +23,10 @@ export default defineNuxtConfig({
       },
     },
   },
+
+  runtimeConfig: {
+    public: {
+      serverPort: process.env.SERVER_PORT || 3001,
+    },
+  },
 });

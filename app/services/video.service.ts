@@ -1,10 +1,15 @@
+import { useRuntimeConfig } from "#imports";
+
 class VideoService {
   async saveVideo(videoBlob: Blob): Promise<void> {
     try {
+      const config = useRuntimeConfig();
+      const port = config.public.serverPort;
+
       const formData = new FormData();
       formData.append("video", videoBlob, "video.webm");
 
-      const response = await fetch("http://localhost:3001/upload", {
+      const response = await fetch(`http://localhost:${port}/upload`, {
         method: "POST",
         body: formData,
       });
