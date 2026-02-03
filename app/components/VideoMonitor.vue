@@ -27,6 +27,8 @@
 import { ref, onUnmounted } from "vue";
 
 const video = ref<HTMLVideoElement | null>(null);
+const videoComposable = useVideo();
+
 let stream: MediaStream | null = null;
 let recorder: MediaRecorder | null = null;
 let chunks: Blob[] = [];
@@ -53,6 +55,7 @@ const stop = () => {
   recorder.onstop = () => {
     const blob = new Blob(chunks, { type: "video/webm" });
     console.log(blob);
+    videoComposable.saveVideo(blob);
     chunks = [];
   };
 
