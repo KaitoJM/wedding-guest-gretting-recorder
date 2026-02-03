@@ -19,27 +19,34 @@
       v-if="countDown === 0"
       class="absolute bottom-4 left-4 bg-black bg-opacity-50 text-white px-4 py-2 rounded"
     >
-      Recording: {{ recordingTimeLeft }}s
+      {{ formattedTime }}
     </div>
 
     <button
-      @click="stop"
+      @click="cancelRecord"
       class="absolute bottom-4 right-4 bg-red-500 text-white px-4 py-2 rounded"
     >
-      Stop
+      Cancel
     </button>
   </div>
 </template>
 
 <script lang="ts" setup>
-import { ref, onMounted, onUnmounted } from "vue";
+import { ref, onMounted, onUnmounted, computed } from "vue";
 
 const videoComposable = useVideo();
+const router = useRouter();
 
 const video = ref<HTMLVideoElement | null>(null);
 const countDown = ref(3);
 const videoDuration = 60; // seconds
 const recordingTimeLeft = ref(videoDuration);
+
+const formattedTime = computed(() => {
+  const minutes = Math.floor(recordingTimeLeft.value / 60);
+  const seconds = recordingTimeLeft.value % 60;
+  return `${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
+});
 
 let stream: MediaStream | null = null;
 let recorder: MediaRecorder | null = null;
@@ -92,6 +99,15 @@ const stop = () => {
   };
 
   stream.getTracks().forEach((t) => t.stop());
+};
+
+const cancelRecord = () => {
+  if (recordingInterval) {
+    clearInterval(recordingInterval);
+    recordingInterval = null;
+  }
+  stream?.getTracks().forEach((t) => t.stop());
+  router.push("/");
 };
 
 onMounted(() => {
