@@ -15,6 +15,13 @@
       <div class="text-white text-6xl font-bold">{{ countDown }}</div>
     </div>
 
+    <div
+      v-if="countDown === 0"
+      class="absolute bottom-4 left-4 bg-black bg-opacity-50 text-white px-4 py-2 rounded"
+    >
+      Recording: {{ recordingTimeLeft }}s
+    </div>
+
     <button
       @click="stop"
       class="absolute bottom-4 right-4 bg-red-500 text-white px-4 py-2 rounded"
@@ -31,10 +38,14 @@ const videoComposable = useVideo();
 
 const video = ref<HTMLVideoElement | null>(null);
 const countDown = ref(3);
+const videoDuration = 60; // seconds
+const recordingTimeLeft = ref(videoDuration);
+
 let stream: MediaStream | null = null;
 let recorder: MediaRecorder | null = null;
 let chunks: Blob[] = [];
 let countdownInterval: NodeJS.Timeout | null = null;
+let recordingInterval: NodeJS.Timeout | null = null;
 
 const start = async () => {
   stream = await navigator.mediaDevices.getUserMedia({
@@ -49,10 +60,28 @@ const start = async () => {
   recorder = new MediaRecorder(stream);
   recorder.ondataavailable = (e) => chunks.push(e.data);
   recorder.start();
+
+  // Start recording timer
+  recordingTimeLeft.value = videoDuration;
+  recordingInterval = setInterval(() => {
+    recordingTimeLeft.value--;
+    if (recordingTimeLeft.value === 0) {
+      if (recordingInterval) {
+        clearInterval(recordingInterval);
+        recordingInterval = null;
+      }
+      stop();
+    }
+  }, 1000);
 };
 
 const stop = () => {
   if (!recorder || !stream) return;
+
+  if (recordingInterval) {
+    clearInterval(recordingInterval);
+    recordingInterval = null;
+  }
 
   recorder.stop();
   recorder.onstop = () => {
@@ -82,6 +111,10 @@ onUnmounted(() => {
   if (countdownInterval) {
     clearInterval(countdownInterval);
     countdownInterval = null;
+  }
+  if (recordingInterval) {
+    clearInterval(recordingInterval);
+    recordingInterval = null;
   }
   stream?.getTracks().forEach((t) => t.stop());
 });
