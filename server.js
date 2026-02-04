@@ -10,7 +10,16 @@ import { WebSocketServer } from "ws";
 const app = express();
 const PORT = process.env.SERVER_PORT || 3001;
 
-app.use(cors());
+app.use(
+  cors({
+    origin: [
+      "http://3.107.241.223:8087",
+      "http://localhost:3000",
+      "http://localhost:8087",
+    ],
+    credentials: true,
+  }),
+);
 app.use("/uploads", express.static(path.resolve("public/uploads")));
 
 // Set up storage for uploaded videos
