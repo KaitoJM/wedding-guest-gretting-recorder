@@ -9,7 +9,8 @@
     "postinstall": "nuxt prepare",
     "lint": "eslint .",
     "typecheck": "nuxt typecheck",
-    "server": "node server.js"
+    "start:client": "nuxt build && nuxt start",
+    "start:server": "node server.js"
   },
   "dependencies": {
     "@iconify-json/lucide": "^1.2.87",
