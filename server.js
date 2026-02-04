@@ -49,9 +49,15 @@ app.post("/upload", upload.single("video"), (req, res) => {
 // Endpoint to retrieve all videos
 app.get("/videos", (req, res) => {
   try {
-    const videos = fs.readdirSync("public/uploads/");
+    const videos = fs
+      .readdirSync("public/uploads")
+      .filter((file) => file.endsWith(".webm"))
+      .sort()
+      .reverse();
+
     res.json({ videos });
   } catch (error) {
+    console.error(error);
     res.status(500).json({ error: "Failed to retrieve videos" });
   }
 });

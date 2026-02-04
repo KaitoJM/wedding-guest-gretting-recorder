@@ -42,7 +42,7 @@ export function useVideo() {
           const msg = JSON.parse(evt.data);
           if (msg && msg.type === "new-video") {
             // Refresh list when a new video is saved
-            videos.value.push(msg.filename);
+            videos.value.unshift(msg.filename);
           }
         } catch (err) {
           console.error("Invalid WS message:", err);
