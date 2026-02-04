@@ -16,13 +16,14 @@
     "@iconify-json/lucide": "^1.2.87",
     "@iconify-json/simple-icons": "^1.2.68",
     "@nuxt/ui": "^4.4.0",
+    "@vite-pwa/nuxt": "^1.1.0",
     "cors": "^2.8.6",
     "dotenv": "^16.4.5",
     "express": "^5.2.1",
-    "ws": "^8.13.0",
     "multer": "^2.0.2",
     "nuxt": "^4.3.0",
-    "tailwindcss": "^4.1.18"
+    "tailwindcss": "^4.1.18",
+    "ws": "^8.13.0"
   },
   "devDependencies": {
     "@nuxt/eslint": "^1.13.0",
