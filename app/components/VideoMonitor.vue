@@ -28,6 +28,18 @@
     >
       Cancel
     </button>
+
+    <div
+      v-if="done"
+      class="absolute inset-0 flex flex-col gap-2 items-center justify-center bg-black opacity-90 backdrop-blur-xl"
+    >
+      <h2 class="text-white text-4xl font-bold">Recording Complete!</h2>
+      <p v-if="savingVideo" class="text-white">Saving video...</p>
+      <p v-else class="text-white">Video saved successfully!</p>
+      <p v-if="!savingVideo" class="text-white mt-4 text-xs">
+        Returning to home in {{ returnCountDown }}...
+      </p>
+    </div>
   </div>
 </template>
 
@@ -39,8 +51,11 @@ const router = useRouter();
 
 const video = ref<HTMLVideoElement | null>(null);
 const countDown = ref(3);
+const returnCountDown = ref(3);
 const videoDuration = 60; // seconds
 const recordingTimeLeft = ref(videoDuration);
+const savingVideo = computed(() => videoComposable.state.loading);
+const done = ref(false);
 
 const formattedTime = computed(() => {
   const minutes = Math.floor(recordingTimeLeft.value / 60);
@@ -57,6 +72,7 @@ let recorder: MediaRecorder | null = null;
 let chunks: Blob[] = [];
 let countdownInterval: NodeJS.Timeout | null = null;
 let recordingInterval: NodeJS.Timeout | null = null;
+let returningInterval: NodeJS.Timeout | null = null;
 
 const start = async () => {
   recorder = new MediaRecorder(stream);
@@ -85,13 +101,25 @@ const stop = () => {
     recordingInterval = null;
   }
 
+  done.value = true;
+
   recorder.stop();
   recorder.onstop = async () => {
     const blob = new Blob(chunks, { type: "video/webm" });
     console.log(blob);
     await videoComposable.saveVideo(blob);
     chunks = [];
-    router.push("/");
+
+    returningInterval = setInterval(() => {
+      returnCountDown.value--;
+      if (returnCountDown.value === 0) {
+        if (returningInterval) {
+          clearInterval(returningInterval);
+          returningInterval = null;
+        }
+        router.push("/");
+      }
+    }, 1000);
   };
 
   stream.getTracks().forEach((t) => t.stop());
@@ -131,6 +159,10 @@ onUnmounted(() => {
   if (recordingInterval) {
     clearInterval(recordingInterval);
     recordingInterval = null;
+  }
+  if (returningInterval) {
+    clearInterval(returningInterval);
+    returningInterval = null;
   }
   stream?.getTracks().forEach((t) => t.stop());
 });

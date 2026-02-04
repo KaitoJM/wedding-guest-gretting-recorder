@@ -20,7 +20,7 @@ export function useVideo() {
   };
 
   return {
-    ...state,
+    state,
     saveVideo,
   };
 }
