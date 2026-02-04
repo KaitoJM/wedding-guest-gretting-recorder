@@ -4,26 +4,13 @@ import multer from "multer";
 import path from "path";
 import cors from "cors";
 import fs from "fs";
-import https from "https";
+import http from "http";
 import { WebSocketServer } from "ws";
 
 const app = express();
 const PORT = process.env.SERVER_PORT || 3001;
 
-app.use(
-  cors({
-    origin: [
-      "http://3.107.241.223:8087",
-      "https://3.107.241.223:8087",
-      "http://localhost:3000",
-      "https://localhost:3000",
-      "http://localhost:8087",
-      "https://localhost:8087",
-      "https://video-greetings.juanmarcus.com",
-    ],
-    credentials: true,
-  }),
-);
+app.use(cors());
 app.use("/uploads", express.static(path.resolve("public/uploads")));
 
 // Set up storage for uploaded videos
@@ -76,13 +63,8 @@ app.get("/videos", (req, res) => {
   }
 });
 
-// Create HTTPS server and attach WebSocket server
-const httpsOptions = {
-  key: fs.readFileSync("key.pem"),
-  cert: fs.readFileSync("cert.pem"),
-};
-
-const server = https.createServer(httpsOptions, app);
+// Create HTTP server and attach WebSocket server
+const server = http.createServer(app);
 
 const wss = new WebSocketServer({ server });
 
@@ -92,6 +74,6 @@ wss.on("connection", (socket) => {
 });
 
 server.listen(PORT, () => {
-  console.log(`Server is running on https://localhost:${PORT}`);
+  console.log(`Server is running on http://localhost:${PORT}`);
   console.log(`WebSocket server attached`);
 });
