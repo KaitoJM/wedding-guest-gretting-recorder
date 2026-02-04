@@ -4,7 +4,7 @@ import multer from "multer";
 import path from "path";
 import cors from "cors";
 import fs from "fs";
-import http from "http";
+import https from "https";
 import { WebSocketServer } from "ws";
 
 const app = express();
@@ -14,8 +14,12 @@ app.use(
   cors({
     origin: [
       "http://3.107.241.223:8087",
+      "https://3.107.241.223:8087",
       "http://localhost:3000",
+      "https://localhost:3000",
       "http://localhost:8087",
+      "https://localhost:8087",
+      "https://video-greetings.juanmarcus.com",
     ],
     credentials: true,
   }),
@@ -72,8 +76,13 @@ app.get("/videos", (req, res) => {
   }
 });
 
-// Create HTTP server and attach WebSocket server
-const server = http.createServer(app);
+// Create HTTPS server and attach WebSocket server
+const httpsOptions = {
+  key: fs.readFileSync("key.pem"),
+  cert: fs.readFileSync("cert.pem"),
+};
+
+const server = https.createServer(httpsOptions, app);
 
 const wss = new WebSocketServer({ server });
 
@@ -83,6 +92,6 @@ wss.on("connection", (socket) => {
 });
 
 server.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:${PORT}`);
+  console.log(`Server is running on https://localhost:${PORT}`);
   console.log(`WebSocket server attached`);
 });

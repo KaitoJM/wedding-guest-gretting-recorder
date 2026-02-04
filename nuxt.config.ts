@@ -26,7 +26,7 @@ export default defineNuxtConfig({
 
   runtimeConfig: {
     public: {
-      serverAPI: process.env.SERVER_API || "http://localhost",
+      serverAPI: process.env.SERVER_API || "https://localhost",
       serverPort: process.env.SERVER_PORT || 3001,
     },
   },
