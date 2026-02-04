@@ -9,6 +9,7 @@ import { WebSocketServer } from "ws";
 
 const app = express();
 const PORT = process.env.SERVER_PORT || 3001;
+const API_URL = process.env.SERVER_API || "http://localhost:3001";
 
 app.use(cors());
 app.use("/uploads", express.static(path.resolve("public/uploads")));
@@ -74,6 +75,6 @@ wss.on("connection", (socket) => {
 });
 
 server.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:${PORT}`);
+  console.log(`Server is running on ${API_URL}`);
   console.log(`WebSocket server attached`);
 });

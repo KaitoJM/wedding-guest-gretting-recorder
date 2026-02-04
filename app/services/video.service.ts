@@ -3,11 +3,10 @@ import { useRuntimeConfig } from "#imports";
 class VideoService {
   config = useRuntimeConfig();
   apiURL = this.config.public.serverAPI;
-  port = this.config.public.serverPort;
 
   async getVideos(): Promise<{ videos: string[] }> {
     try {
-      const response = await fetch(`${this.apiURL}:${this.port}/videos`, {
+      const response = await fetch(`${this.apiURL}/videos`, {
         method: "GET",
       });
 
@@ -28,7 +27,7 @@ class VideoService {
       const formData = new FormData();
       formData.append("video", videoBlob, "video.webm");
 
-      const response = await fetch(`${this.apiURL}:${this.port}/upload`, {
+      const response = await fetch(`${this.apiURL}/upload`, {
         method: "POST",
         body: formData,
       });
