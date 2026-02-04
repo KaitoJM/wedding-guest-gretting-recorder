@@ -79,18 +79,7 @@ const start = async () => {
   recorder.ondataavailable = (e) => chunks.push(e.data);
   recorder.start();
 
-  // Start recording timer
-  recordingTimeLeft.value = videoDuration;
-  recordingInterval = setInterval(() => {
-    recordingTimeLeft.value--;
-    if (recordingTimeLeft.value === 0) {
-      if (recordingInterval) {
-        clearInterval(recordingInterval);
-        recordingInterval = null;
-      }
-      stop();
-    }
-  }, 1000);
+  recordTimer();
 };
 
 const stop = () => {
@@ -110,16 +99,7 @@ const stop = () => {
     await videoComposable.saveVideo(blob);
     chunks = [];
 
-    returningInterval = setInterval(() => {
-      returnCountDown.value--;
-      if (returnCountDown.value === 0) {
-        if (returningInterval) {
-          clearInterval(returningInterval);
-          returningInterval = null;
-        }
-        router.push("/");
-      }
-    }, 1000);
+    returnTimer();
   };
 
   stream.getTracks().forEach((t) => t.stop());
@@ -134,11 +114,8 @@ const cancelRecord = () => {
   router.push("/");
 };
 
-onMounted(() => {
-  if (video.value) {
-    video.value.srcObject = stream;
-  }
-
+const countdownTimer = () => {
+  countDown.value = 3;
   countdownInterval = setInterval(() => {
     countDown.value--;
     if (countDown.value === 0) {
@@ -149,6 +126,42 @@ onMounted(() => {
       start();
     }
   }, 1000);
+};
+
+const recordTimer = () => {
+  recordingTimeLeft.value = videoDuration;
+  recordingInterval = setInterval(() => {
+    recordingTimeLeft.value--;
+    if (recordingTimeLeft.value === 0) {
+      if (recordingInterval) {
+        clearInterval(recordingInterval);
+        recordingInterval = null;
+      }
+      stop();
+    }
+  }, 1000);
+};
+
+const returnTimer = () => {
+  returnCountDown.value = 3;
+  returningInterval = setInterval(() => {
+    returnCountDown.value--;
+    if (returnCountDown.value === 0) {
+      if (returningInterval) {
+        clearInterval(returningInterval);
+        returningInterval = null;
+      }
+      router.push("/");
+    }
+  }, 1000);
+};
+
+onMounted(() => {
+  if (video.value) {
+    video.value.srcObject = stream;
+  }
+
+  countdownTimer();
 });
 
 onUnmounted(() => {
