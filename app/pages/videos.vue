@@ -14,18 +14,11 @@
 </template>
 
 <script lang="ts" setup>
-import videoService from "~/services/video.service";
-import { useRuntimeConfig } from "#imports";
+import { useVideo } from "~/composables/video.composable";
 
-const videos = ref<string[]>([]);
-
-const getVideos = async () => {
-  const data = await videoService.getVideos();
-  videos.value = data.videos.filter((v) => !v.includes(".DS_Store"));
-  return videos;
-};
+const { videos, fetchVideos } = useVideo();
 
 onMounted(() => {
-  getVideos();
+  fetchVideos();
 });
 </script>
