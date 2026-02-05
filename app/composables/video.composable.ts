@@ -11,8 +11,8 @@ export function useVideo() {
   const videos = ref<string[]>([]);
 
   const config = useRuntimeConfig();
-  const port = config.public.serverPort || 3001;
-  const wsUrl = `ws://localhost:${port}`;
+  const apiURL: string = config.public.serverAPI;
+  const wsUrl = `${apiURL.replace("http", "ws")}`;
 
   let ws: WebSocket | null = null;
   let reconnectDelay = 1000;
