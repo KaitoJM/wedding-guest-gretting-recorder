@@ -9,6 +9,7 @@
     "postinstall": "nuxt prepare",
     "lint": "eslint .",
     "typecheck": "nuxt typecheck",
+    "start:client-no-build": "nuxt start",
     "start:client": "nuxt build && nuxt start",
     "start:server": "node server.js"
   },
