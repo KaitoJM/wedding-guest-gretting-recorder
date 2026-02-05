@@ -62,7 +62,7 @@ const props = defineProps<{
 }>();
 
 const config = useRuntimeConfig();
-const baseUrl = `http://localhost:${config.public.serverPort}`;
+const baseUrl = `${config.public.serverAPI}`;
 const completeVideoURL = `${baseUrl}/uploads/${props.videoURL}`;
 const videoRefs = ref<HTMLVideoElement | null>(null);
 
