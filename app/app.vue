@@ -1,4 +1,6 @@
 <script setup>
+import { initHomeScreenConfigStorage } from "~/utils/home-screen-config";
+
 useHead({
   meta: [{ name: "viewport", content: "width=device-width, initial-scale=1" }],
   link: [
@@ -22,6 +24,10 @@ useSeoMeta({
   ogImage: "https://ui.nuxt.com/assets/templates/nuxt/starter-light.png",
   twitterImage: "https://ui.nuxt.com/assets/templates/nuxt/starter-light.png",
   twitterCard: "summary_large_image",
+});
+
+onMounted(() => {
+  initHomeScreenConfigStorage();
 });
 </script>
 

@@ -26,7 +26,7 @@
           Recording Booth
         </p>
         <h1 class="mt-4 text-3xl font-semibold text-white sm:text-4xl">
-          Leave your wedding greeting
+          Leave your greeting
         </h1>
         <p class="mt-4 text-base text-slate-200">
           You will be given 1 minute to record your greeting.
@@ -58,8 +58,12 @@
 </template>
 
 <script lang="ts" setup>
-const BACKGROUND_STORAGE_KEY = "wedding-greeting-background-image";
-const HERO_TEXT_STYLE_STORAGE_KEY = "wedding-greeting-hero-text-style";
+import {
+  BACKGROUND_STORAGE_KEY,
+  DEFAULT_HERO_TEXT_STYLE,
+  HERO_TEXT_STYLE_STORAGE_KEY,
+  initHomeScreenConfigStorage,
+} from "~/utils/home-screen-config";
 
 const start = ref(false);
 const backgroundImage = ref<string | null>(null);
@@ -70,8 +74,11 @@ onMounted(() => {
     return;
   }
 
+  initHomeScreenConfigStorage();
   backgroundImage.value = window.localStorage.getItem(BACKGROUND_STORAGE_KEY);
-  const savedTextStyle = window.localStorage.getItem(HERO_TEXT_STYLE_STORAGE_KEY);
+  const savedTextStyle = window.localStorage.getItem(
+    HERO_TEXT_STYLE_STORAGE_KEY,
+  );
 
   if (savedTextStyle) {
     try {
@@ -80,7 +87,7 @@ onMounted(() => {
       primaryButtonColor.value =
         typeof parsedTextStyle.primaryButtonColor === "string"
           ? parsedTextStyle.primaryButtonColor
-          : "#f43f5e";
+          : DEFAULT_HERO_TEXT_STYLE.primaryButtonColor;
     } catch {}
   }
 });

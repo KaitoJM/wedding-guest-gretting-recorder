@@ -340,51 +340,23 @@
 </template>
 
 <script lang="ts" setup>
-const BACKGROUND_STORAGE_KEY = 'wedding-greeting-background-image';
-const WELCOME_TITLE_STORAGE_KEY = 'wedding-greeting-welcome-title';
-const WELCOME_SUBTITLE_STORAGE_KEY = 'wedding-greeting-welcome-subtitle';
-const HERO_TEXT_STYLE_STORAGE_KEY = 'wedding-greeting-hero-text-style';
-const HERO_LAYOUT_STORAGE_KEY = 'wedding-greeting-hero-layout';
-const DEFAULT_WELCOME_TITLE = 'Welcome to the Wedding Guest Greeting Recorder';
-const DEFAULT_WELCOME_SUBTITLE =
-  'Record and save your wedding guest greetings!';
-type ContentAlign = 'left' | 'center' | 'right';
-
-type HeroTextStyle = {
-  titleFontSize: number;
-  titleColor: string;
-  titleFontFamily: string;
-  titleFontWeight: number;
-  subtitleFontSize: number;
-  subtitleColor: string;
-  subtitleFontFamily: string;
-  subtitleFontWeight: number;
-  contentAlign: ContentAlign;
-  primaryButtonColor: string;
-  useGlassEffect: boolean;
-};
-
-const DEFAULT_HERO_TEXT_STYLE: HeroTextStyle = {
-  titleFontSize: 48,
-  titleColor: '#ffffff',
-  titleFontFamily: 'inherit',
-  titleFontWeight: 700,
-  subtitleFontSize: 18,
-  subtitleColor: '#e2e8f0',
-  subtitleFontFamily: 'inherit',
-  subtitleFontWeight: 400,
-  contentAlign: 'left',
-  primaryButtonColor: '#f43f5e',
-  useGlassEffect: true
-};
-const DEFAULT_HERO_LAYOUT = {
-  x: 15,
-  y: 28,
-  width: 42,
-  height: 24
-};
-const MIN_HERO_WIDTH = 18;
-const MIN_HERO_HEIGHT = 12;
+import {
+  BACKGROUND_STORAGE_KEY,
+  DEFAULT_HERO_LAYOUT,
+  DEFAULT_HERO_TEXT_STYLE,
+  DEFAULT_WELCOME_SUBTITLE,
+  DEFAULT_WELCOME_TITLE,
+  HERO_LAYOUT_STORAGE_KEY,
+  HERO_TEXT_STYLE_STORAGE_KEY,
+  MIN_HERO_HEIGHT,
+  MIN_HERO_WIDTH,
+  WELCOME_SUBTITLE_STORAGE_KEY,
+  WELCOME_TITLE_STORAGE_KEY,
+  clamp,
+  getStoredNumber,
+  initHomeScreenConfigStorage,
+  type HeroTextStyle
+} from '~/utils/home-screen-config';
 
 const backgroundImage = ref<string | null>(null);
 const backgroundMessage = ref('');
@@ -462,15 +434,6 @@ const scaledStageStyle = computed(() => ({
   height: `${windowSize.height}px`,
   transform: `scale(${previewScale.value})`
 }));
-
-const clamp = (value: number, min: number, max: number) =>
-  Math.min(Math.max(value, min), max);
-
-const getStoredNumber = (value: unknown, fallback: number) => {
-  const parsed = Number(value);
-
-  return Number.isFinite(parsed) ? parsed : fallback;
-};
 
 const syncFontOptions = (deviceFonts: string[] = []) => {
   const seen = new Set<string>();
@@ -863,6 +826,7 @@ const startResizing = (event: PointerEvent) => {
 };
 
 onMounted(() => {
+  initHomeScreenConfigStorage();
   loadConfiguration();
   syncFontOptions();
   deviceFontsSupported.value =
