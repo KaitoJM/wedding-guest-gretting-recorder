@@ -26,6 +26,7 @@
         :subtitle-font-family="heroTextStyle.subtitleFontFamily"
         :subtitle-font-weight="heroTextStyle.subtitleFontWeight"
         :content-align="heroTextStyle.contentAlign"
+        :primary-button-color="heroTextStyle.primaryButtonColor"
         :use-links="true"
       />
     </div>
@@ -40,7 +41,22 @@ const HERO_TEXT_STYLE_STORAGE_KEY = 'wedding-greeting-hero-text-style';
 const HERO_LAYOUT_STORAGE_KEY = 'wedding-greeting-hero-layout';
 const DEFAULT_WELCOME_TITLE = 'Welcome to the Wedding Guest Greeting Recorder';
 const DEFAULT_WELCOME_SUBTITLE = 'Record and save your wedding guest greetings!';
-const DEFAULT_HERO_TEXT_STYLE = {
+type ContentAlign = 'left' | 'center' | 'right';
+
+type HeroTextStyle = {
+  titleFontSize: number;
+  titleColor: string;
+  titleFontFamily: string;
+  titleFontWeight: number;
+  subtitleFontSize: number;
+  subtitleColor: string;
+  subtitleFontFamily: string;
+  subtitleFontWeight: number;
+  contentAlign: ContentAlign;
+  primaryButtonColor: string;
+};
+
+const DEFAULT_HERO_TEXT_STYLE: HeroTextStyle = {
   titleFontSize: 48,
   titleColor: '#ffffff',
   titleFontFamily: 'inherit',
@@ -49,7 +65,8 @@ const DEFAULT_HERO_TEXT_STYLE = {
   subtitleColor: '#e2e8f0',
   subtitleFontFamily: 'inherit',
   subtitleFontWeight: 400,
-  contentAlign: 'left'
+  contentAlign: 'left',
+  primaryButtonColor: '#f43f5e'
 };
 const DEFAULT_HERO_LAYOUT = {
   x: 15,
@@ -64,7 +81,7 @@ const backgroundImage = ref<string | null>(null);
 const welcomeTitle = ref(DEFAULT_WELCOME_TITLE);
 const welcomeSubtitle = ref(DEFAULT_WELCOME_SUBTITLE);
 const heroLayout = reactive({ ...DEFAULT_HERO_LAYOUT });
-const heroTextStyle = reactive({ ...DEFAULT_HERO_TEXT_STYLE });
+const heroTextStyle = reactive<HeroTextStyle>({ ...DEFAULT_HERO_TEXT_STYLE });
 
 const heroLayoutStyle = computed(() => ({
   left: `${heroLayout.x}%`,
@@ -145,6 +162,10 @@ onMounted(() => {
         parsedTextStyle.contentAlign === 'right'
           ? parsedTextStyle.contentAlign
           : DEFAULT_HERO_TEXT_STYLE.contentAlign;
+      heroTextStyle.primaryButtonColor =
+        typeof parsedTextStyle.primaryButtonColor === 'string'
+          ? parsedTextStyle.primaryButtonColor
+          : DEFAULT_HERO_TEXT_STYLE.primaryButtonColor;
     } catch {}
   }
 

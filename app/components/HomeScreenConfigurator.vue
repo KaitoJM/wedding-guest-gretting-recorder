@@ -88,6 +88,16 @@
             </select>
           </label>
 
+          <label class="mt-4 block">
+            <span class="text-sm font-medium text-slate-200">Primary button color</span>
+            <input
+              v-model="heroTextStyle.primaryButtonColor"
+              class="mt-2 h-11 w-full rounded-xl border border-white/10 bg-slate-950/70 p-1"
+              type="color"
+              @input="saveHeroTextStyle"
+            />
+          </label>
+
           <div class="mt-6 grid gap-4 md:grid-cols-2">
             <div class="rounded-2xl border border-white/10 bg-slate-950/40 p-4">
               <p class="text-sm font-medium text-slate-100">Title style</p>
@@ -273,6 +283,7 @@
                   :subtitle-font-family="heroTextStyle.subtitleFontFamily"
                   :subtitle-font-weight="heroTextStyle.subtitleFontWeight"
                   :content-align="heroTextStyle.contentAlign"
+                  :primary-button-color="heroTextStyle.primaryButtonColor"
                 />
 
                 <button
@@ -300,7 +311,22 @@ const HERO_LAYOUT_STORAGE_KEY = 'wedding-greeting-hero-layout';
 const DEFAULT_WELCOME_TITLE = 'Welcome to the Wedding Guest Greeting Recorder';
 const DEFAULT_WELCOME_SUBTITLE =
   'Record and save your wedding guest greetings!';
-const DEFAULT_HERO_TEXT_STYLE = {
+type ContentAlign = 'left' | 'center' | 'right';
+
+type HeroTextStyle = {
+  titleFontSize: number;
+  titleColor: string;
+  titleFontFamily: string;
+  titleFontWeight: number;
+  subtitleFontSize: number;
+  subtitleColor: string;
+  subtitleFontFamily: string;
+  subtitleFontWeight: number;
+  contentAlign: ContentAlign;
+  primaryButtonColor: string;
+};
+
+const DEFAULT_HERO_TEXT_STYLE: HeroTextStyle = {
   titleFontSize: 48,
   titleColor: '#ffffff',
   titleFontFamily: 'inherit',
@@ -309,7 +335,8 @@ const DEFAULT_HERO_TEXT_STYLE = {
   subtitleColor: '#e2e8f0',
   subtitleFontFamily: 'inherit',
   subtitleFontWeight: 400,
-  contentAlign: 'left'
+  contentAlign: 'left',
+  primaryButtonColor: '#f43f5e'
 };
 const DEFAULT_HERO_LAYOUT = {
   x: 15,
@@ -325,7 +352,7 @@ const backgroundMessage = ref('');
 const isDraggingBackground = ref(false);
 const welcomeTitle = ref(DEFAULT_WELCOME_TITLE);
 const welcomeSubtitle = ref(DEFAULT_WELCOME_SUBTITLE);
-const heroTextStyle = reactive({ ...DEFAULT_HERO_TEXT_STYLE });
+const heroTextStyle = reactive<HeroTextStyle>({ ...DEFAULT_HERO_TEXT_STYLE });
 const previewFrame = ref<HTMLDivElement | null>(null);
 const previewAspectRatio = ref('9 / 16');
 const previewScale = ref(1);
@@ -523,6 +550,10 @@ const loadConfiguration = () => {
         parsedTextStyle.contentAlign === 'right'
           ? parsedTextStyle.contentAlign
           : DEFAULT_HERO_TEXT_STYLE.contentAlign;
+      heroTextStyle.primaryButtonColor =
+        typeof parsedTextStyle.primaryButtonColor === 'string'
+          ? parsedTextStyle.primaryButtonColor
+          : DEFAULT_HERO_TEXT_STYLE.primaryButtonColor;
     } catch {}
   }
 
@@ -564,6 +595,10 @@ const saveHeroTextStyle = () => {
     heroTextStyle.contentAlign === 'right'
       ? heroTextStyle.contentAlign
       : DEFAULT_HERO_TEXT_STYLE.contentAlign;
+  heroTextStyle.primaryButtonColor =
+    typeof heroTextStyle.primaryButtonColor === 'string'
+      ? heroTextStyle.primaryButtonColor
+      : DEFAULT_HERO_TEXT_STYLE.primaryButtonColor;
 
   window.localStorage.setItem(
     HERO_TEXT_STYLE_STORAGE_KEY,

@@ -10,11 +10,16 @@
       <NuxtLink
         v-if="useLinks"
         to="/record"
-        class="rounded-full bg-rose-500 px-6 py-3 text-white transition hover:bg-rose-400"
+        :style="primaryButtonStyleObject"
+        class="rounded-full px-6 py-3 text-white transition"
       >
         Record Now
       </NuxtLink>
-      <span v-else class="rounded-full bg-rose-500 px-6 py-3 text-white">
+      <span
+        v-else
+        :style="primaryButtonStyleObject"
+        class="rounded-full px-6 py-3 text-white"
+      >
         Record Now
       </span>
 
@@ -50,6 +55,7 @@ const props = withDefaults(
     subtitleFontFamily?: string;
     subtitleFontWeight?: number | string;
     contentAlign?: 'left' | 'center' | 'right';
+    primaryButtonColor?: string;
   }>(),
   {
     useLinks: false,
@@ -61,7 +67,8 @@ const props = withDefaults(
     subtitleColor: '#e2e8f0',
     subtitleFontFamily: 'inherit',
     subtitleFontWeight: 400,
-    contentAlign: 'left'
+    contentAlign: 'left',
+    primaryButtonColor: '#f43f5e'
   }
 );
 
@@ -103,5 +110,9 @@ const subtitleStyleObject = computed(() => ({
   fontFamily: props.subtitleFontFamily,
   fontWeight: String(props.subtitleFontWeight),
   lineHeight: '1.5'
+}));
+
+const primaryButtonStyleObject = computed(() => ({
+  backgroundColor: props.primaryButtonColor
 }));
 </script>

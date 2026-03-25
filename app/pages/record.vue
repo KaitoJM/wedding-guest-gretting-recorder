@@ -37,7 +37,8 @@
 
         <div class="mt-8 flex flex-wrap items-center justify-center gap-3">
           <button
-            class="rounded-full bg-rose-500 px-6 py-3 text-white transition hover:bg-rose-400"
+            :style="{ backgroundColor: primaryButtonColor }"
+            class="rounded-full px-6 py-3 text-white transition"
             @click="start = true"
           >
             Start Recording
@@ -58,9 +59,11 @@
 
 <script lang="ts" setup>
 const BACKGROUND_STORAGE_KEY = "wedding-greeting-background-image";
+const HERO_TEXT_STYLE_STORAGE_KEY = "wedding-greeting-hero-text-style";
 
 const start = ref(false);
 const backgroundImage = ref<string | null>(null);
+const primaryButtonColor = ref("#f43f5e");
 
 onMounted(() => {
   if (typeof window === "undefined") {
@@ -68,5 +71,17 @@ onMounted(() => {
   }
 
   backgroundImage.value = window.localStorage.getItem(BACKGROUND_STORAGE_KEY);
+  const savedTextStyle = window.localStorage.getItem(HERO_TEXT_STYLE_STORAGE_KEY);
+
+  if (savedTextStyle) {
+    try {
+      const parsedTextStyle = JSON.parse(savedTextStyle);
+
+      primaryButtonColor.value =
+        typeof parsedTextStyle.primaryButtonColor === "string"
+          ? parsedTextStyle.primaryButtonColor
+          : "#f43f5e";
+    } catch {}
+  }
 });
 </script>
