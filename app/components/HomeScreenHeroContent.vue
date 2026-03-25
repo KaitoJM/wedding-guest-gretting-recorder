@@ -44,18 +44,22 @@ const props = withDefaults(
     titleFontSize?: number;
     titleColor?: string;
     titleFontFamily?: string;
+    titleFontWeight?: number | string;
     subtitleFontSize?: number;
     subtitleColor?: string;
     subtitleFontFamily?: string;
+    subtitleFontWeight?: number | string;
   }>(),
   {
     useLinks: false,
     titleFontSize: 48,
     titleColor: '#ffffff',
     titleFontFamily: 'inherit',
+    titleFontWeight: 700,
     subtitleFontSize: 18,
     subtitleColor: '#e2e8f0',
-    subtitleFontFamily: 'inherit'
+    subtitleFontFamily: 'inherit',
+    subtitleFontWeight: 400
   }
 );
 
@@ -63,6 +67,7 @@ const titleStyleObject = computed(() => ({
   fontSize: `${props.titleFontSize}px`,
   color: props.titleColor,
   fontFamily: props.titleFontFamily,
+  fontWeight: String(props.titleFontWeight),
   lineHeight: '1.1'
 }));
 
@@ -70,6 +75,7 @@ const subtitleStyleObject = computed(() => ({
   fontSize: `${props.subtitleFontSize}px`,
   color: props.subtitleColor,
   fontFamily: props.subtitleFontFamily,
+  fontWeight: String(props.subtitleFontWeight),
   lineHeight: '1.5'
 }));
 </script>

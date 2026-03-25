@@ -20,9 +20,11 @@
         :title-font-size="heroTextStyle.titleFontSize"
         :title-color="heroTextStyle.titleColor"
         :title-font-family="heroTextStyle.titleFontFamily"
+        :title-font-weight="heroTextStyle.titleFontWeight"
         :subtitle-font-size="heroTextStyle.subtitleFontSize"
         :subtitle-color="heroTextStyle.subtitleColor"
         :subtitle-font-family="heroTextStyle.subtitleFontFamily"
+        :subtitle-font-weight="heroTextStyle.subtitleFontWeight"
         :use-links="true"
       />
     </div>
@@ -41,9 +43,11 @@ const DEFAULT_HERO_TEXT_STYLE = {
   titleFontSize: 48,
   titleColor: '#ffffff',
   titleFontFamily: 'inherit',
+  titleFontWeight: 700,
   subtitleFontSize: 18,
   subtitleColor: '#e2e8f0',
-  subtitleFontFamily: 'inherit'
+  subtitleFontFamily: 'inherit',
+  subtitleFontWeight: 400
 };
 const DEFAULT_HERO_LAYOUT = {
   x: 15,
@@ -110,6 +114,10 @@ onMounted(() => {
         typeof parsedTextStyle.titleFontFamily === 'string'
           ? parsedTextStyle.titleFontFamily
           : DEFAULT_HERO_TEXT_STYLE.titleFontFamily;
+      heroTextStyle.titleFontWeight = getStoredNumber(
+        parsedTextStyle.titleFontWeight,
+        DEFAULT_HERO_TEXT_STYLE.titleFontWeight
+      );
       heroTextStyle.subtitleFontSize = clamp(
         getStoredNumber(
           parsedTextStyle.subtitleFontSize,
@@ -126,6 +134,10 @@ onMounted(() => {
         typeof parsedTextStyle.subtitleFontFamily === 'string'
           ? parsedTextStyle.subtitleFontFamily
           : DEFAULT_HERO_TEXT_STYLE.subtitleFontFamily;
+      heroTextStyle.subtitleFontWeight = getStoredNumber(
+        parsedTextStyle.subtitleFontWeight,
+        DEFAULT_HERO_TEXT_STYLE.subtitleFontWeight
+      );
     } catch {}
   }
 

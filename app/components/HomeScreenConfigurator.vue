@@ -116,6 +116,23 @@
                   </option>
                 </select>
               </label>
+
+              <label class="mt-4 block">
+                <span class="text-xs uppercase tracking-[0.2em] text-slate-400">Weight</span>
+                <select
+                  v-model="heroTextStyle.titleFontWeight"
+                  class="mt-2 w-full rounded-2xl border border-white/10 bg-slate-950/70 px-4 py-3 text-white outline-none focus:border-emerald-300/60"
+                  @change="saveHeroTextStyle"
+                >
+                  <option
+                    v-for="weight in fontWeightOptions"
+                    :key="`title-${weight.value}`"
+                    :value="weight.value"
+                  >
+                    {{ weight.label }}
+                  </option>
+                </select>
+              </label>
             </div>
 
             <div class="rounded-2xl border border-white/10 bg-slate-950/40 p-4">
@@ -159,6 +176,23 @@
                     :value="font.value"
                   >
                     {{ font.label }}
+                  </option>
+                </select>
+              </label>
+
+              <label class="mt-4 block">
+                <span class="text-xs uppercase tracking-[0.2em] text-slate-400">Weight</span>
+                <select
+                  v-model="heroTextStyle.subtitleFontWeight"
+                  class="mt-2 w-full rounded-2xl border border-white/10 bg-slate-950/70 px-4 py-3 text-white outline-none focus:border-emerald-300/60"
+                  @change="saveHeroTextStyle"
+                >
+                  <option
+                    v-for="weight in fontWeightOptions"
+                    :key="`subtitle-${weight.value}`"
+                    :value="weight.value"
+                  >
+                    {{ weight.label }}
                   </option>
                 </select>
               </label>
@@ -216,9 +250,11 @@
                   :title-font-size="heroTextStyle.titleFontSize"
                   :title-color="heroTextStyle.titleColor"
                   :title-font-family="heroTextStyle.titleFontFamily"
+                  :title-font-weight="heroTextStyle.titleFontWeight"
                   :subtitle-font-size="heroTextStyle.subtitleFontSize"
                   :subtitle-color="heroTextStyle.subtitleColor"
                   :subtitle-font-family="heroTextStyle.subtitleFontFamily"
+                  :subtitle-font-weight="heroTextStyle.subtitleFontWeight"
                 />
 
                 <button
@@ -250,9 +286,11 @@ const DEFAULT_HERO_TEXT_STYLE = {
   titleFontSize: 48,
   titleColor: '#ffffff',
   titleFontFamily: 'inherit',
+  titleFontWeight: 700,
   subtitleFontSize: 18,
   subtitleColor: '#e2e8f0',
-  subtitleFontFamily: 'inherit'
+  subtitleFontFamily: 'inherit',
+  subtitleFontWeight: 400
 };
 const DEFAULT_HERO_LAYOUT = {
   x: 15,
@@ -280,6 +318,13 @@ const fontOptions = [
   { label: 'Trebuchet', value: '"Trebuchet MS", sans-serif' },
   { label: 'Verdana', value: 'Verdana, sans-serif' },
   { label: 'Courier', value: '"Courier New", monospace' }
+] as const;
+const fontWeightOptions = [
+  { label: 'Regular', value: 400 },
+  { label: 'Medium', value: 500 },
+  { label: 'Semibold', value: 600 },
+  { label: 'Bold', value: 700 },
+  { label: 'Extra Bold', value: 800 }
 ] as const;
 
 let activePointerMode: 'drag' | 'resize' | null = null;
@@ -425,6 +470,10 @@ const loadConfiguration = () => {
         typeof parsedTextStyle.titleFontFamily === 'string'
           ? parsedTextStyle.titleFontFamily
           : DEFAULT_HERO_TEXT_STYLE.titleFontFamily;
+      heroTextStyle.titleFontWeight = getStoredNumber(
+        parsedTextStyle.titleFontWeight,
+        DEFAULT_HERO_TEXT_STYLE.titleFontWeight
+      );
       heroTextStyle.subtitleFontSize = clamp(
         getStoredNumber(
           parsedTextStyle.subtitleFontSize,
@@ -441,6 +490,10 @@ const loadConfiguration = () => {
         typeof parsedTextStyle.subtitleFontFamily === 'string'
           ? parsedTextStyle.subtitleFontFamily
           : DEFAULT_HERO_TEXT_STYLE.subtitleFontFamily;
+      heroTextStyle.subtitleFontWeight = getStoredNumber(
+        parsedTextStyle.subtitleFontWeight,
+        DEFAULT_HERO_TEXT_STYLE.subtitleFontWeight
+      );
     } catch {}
   }
 
@@ -469,6 +522,14 @@ const saveHeroTextStyle = () => {
 
   heroTextStyle.titleFontSize = clamp(heroTextStyle.titleFontSize, 24, 96);
   heroTextStyle.subtitleFontSize = clamp(heroTextStyle.subtitleFontSize, 12, 48);
+  heroTextStyle.titleFontWeight = getStoredNumber(
+    heroTextStyle.titleFontWeight,
+    DEFAULT_HERO_TEXT_STYLE.titleFontWeight
+  );
+  heroTextStyle.subtitleFontWeight = getStoredNumber(
+    heroTextStyle.subtitleFontWeight,
+    DEFAULT_HERO_TEXT_STYLE.subtitleFontWeight
+  );
 
   window.localStorage.setItem(
     HERO_TEXT_STYLE_STORAGE_KEY,
