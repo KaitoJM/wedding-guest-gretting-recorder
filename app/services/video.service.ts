@@ -1,13 +1,17 @@
-import { useRuntimeConfig } from "#imports";
+import { useRuntimeConfig } from '#imports';
 
 class VideoService {
-  config = useRuntimeConfig();
-  apiURL = this.config.public.serverAPI;
+  private getApiURL() {
+    const config = useRuntimeConfig();
+    return config.public.serverAPI;
+  }
 
   async getVideos(): Promise<{ videos: string[] }> {
+    const apiURL = this.getApiURL();
+
     try {
-      const response = await fetch(`${this.apiURL}/videos`, {
-        method: "GET",
+      const response = await fetch(`${apiURL}/videos`, {
+        method: 'GET',
       });
 
       if (!response.ok) {
@@ -17,18 +21,20 @@ class VideoService {
       const videos = await response.json();
       return videos;
     } catch (error) {
-      console.error("Error fetching videos:", error);
+      console.error('Error fetching videos:', error);
       throw error;
     }
   }
 
   async saveVideo(videoBlob: Blob): Promise<void> {
+    const apiURL = this.getApiURL();
+
     try {
       const formData = new FormData();
-      formData.append("video", videoBlob, "video.webm");
+      formData.append('video', videoBlob, 'video.webm');
 
-      const response = await fetch(`${this.apiURL}/upload`, {
-        method: "POST",
+      const response = await fetch(`${apiURL}/upload`, {
+        method: 'POST',
         body: formData,
       });
 
@@ -37,9 +43,9 @@ class VideoService {
       }
 
       const result = await response.json();
-      console.log("Video uploaded successfully:", result);
+      console.log('Video uploaded successfully:', result);
     } catch (error) {
-      console.error("Error saving video:", error);
+      console.error('Error saving video:', error);
       throw error;
     }
   }
