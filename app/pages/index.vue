@@ -17,6 +17,12 @@
       <HomeScreenHeroContent
         :title="welcomeTitle"
         :subtitle="welcomeSubtitle"
+        :title-font-size="heroTextStyle.titleFontSize"
+        :title-color="heroTextStyle.titleColor"
+        :title-font-family="heroTextStyle.titleFontFamily"
+        :subtitle-font-size="heroTextStyle.subtitleFontSize"
+        :subtitle-color="heroTextStyle.subtitleColor"
+        :subtitle-font-family="heroTextStyle.subtitleFontFamily"
         :use-links="true"
       />
     </div>
@@ -27,9 +33,18 @@
 const BACKGROUND_STORAGE_KEY = 'wedding-greeting-background-image';
 const WELCOME_TITLE_STORAGE_KEY = 'wedding-greeting-welcome-title';
 const WELCOME_SUBTITLE_STORAGE_KEY = 'wedding-greeting-welcome-subtitle';
+const HERO_TEXT_STYLE_STORAGE_KEY = 'wedding-greeting-hero-text-style';
 const HERO_LAYOUT_STORAGE_KEY = 'wedding-greeting-hero-layout';
 const DEFAULT_WELCOME_TITLE = 'Welcome to the Wedding Guest Greeting Recorder';
 const DEFAULT_WELCOME_SUBTITLE = 'Record and save your wedding guest greetings!';
+const DEFAULT_HERO_TEXT_STYLE = {
+  titleFontSize: 48,
+  titleColor: '#ffffff',
+  titleFontFamily: 'inherit',
+  subtitleFontSize: 18,
+  subtitleColor: '#e2e8f0',
+  subtitleFontFamily: 'inherit'
+};
 const DEFAULT_HERO_LAYOUT = {
   x: 15,
   y: 28,
@@ -43,6 +58,7 @@ const backgroundImage = ref<string | null>(null);
 const welcomeTitle = ref(DEFAULT_WELCOME_TITLE);
 const welcomeSubtitle = ref(DEFAULT_WELCOME_SUBTITLE);
 const heroLayout = reactive({ ...DEFAULT_HERO_LAYOUT });
+const heroTextStyle = reactive({ ...DEFAULT_HERO_TEXT_STYLE });
 
 const heroLayoutStyle = computed(() => ({
   left: `${heroLayout.x}%`,
@@ -72,6 +88,46 @@ onMounted(() => {
   welcomeSubtitle.value =
     window.localStorage.getItem(WELCOME_SUBTITLE_STORAGE_KEY) ||
     DEFAULT_WELCOME_SUBTITLE;
+  const savedTextStyle = window.localStorage.getItem(HERO_TEXT_STYLE_STORAGE_KEY);
+
+  if (savedTextStyle) {
+    try {
+      const parsedTextStyle = JSON.parse(savedTextStyle);
+
+      heroTextStyle.titleFontSize = clamp(
+        getStoredNumber(
+          parsedTextStyle.titleFontSize,
+          DEFAULT_HERO_TEXT_STYLE.titleFontSize
+        ),
+        24,
+        96
+      );
+      heroTextStyle.titleColor =
+        typeof parsedTextStyle.titleColor === 'string'
+          ? parsedTextStyle.titleColor
+          : DEFAULT_HERO_TEXT_STYLE.titleColor;
+      heroTextStyle.titleFontFamily =
+        typeof parsedTextStyle.titleFontFamily === 'string'
+          ? parsedTextStyle.titleFontFamily
+          : DEFAULT_HERO_TEXT_STYLE.titleFontFamily;
+      heroTextStyle.subtitleFontSize = clamp(
+        getStoredNumber(
+          parsedTextStyle.subtitleFontSize,
+          DEFAULT_HERO_TEXT_STYLE.subtitleFontSize
+        ),
+        12,
+        48
+      );
+      heroTextStyle.subtitleColor =
+        typeof parsedTextStyle.subtitleColor === 'string'
+          ? parsedTextStyle.subtitleColor
+          : DEFAULT_HERO_TEXT_STYLE.subtitleColor;
+      heroTextStyle.subtitleFontFamily =
+        typeof parsedTextStyle.subtitleFontFamily === 'string'
+          ? parsedTextStyle.subtitleFontFamily
+          : DEFAULT_HERO_TEXT_STYLE.subtitleFontFamily;
+    } catch {}
+  }
 
   const savedLayout = window.localStorage.getItem(HERO_LAYOUT_STORAGE_KEY);
 

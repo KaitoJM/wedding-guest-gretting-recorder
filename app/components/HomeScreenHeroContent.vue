@@ -1,9 +1,9 @@
 <template>
   <div class="flex h-full w-full flex-col items-start justify-start text-left">
-    <h3 class="max-w-4xl text-3xl font-bold text-white sm:text-5xl">
+    <h3 :style="titleStyleObject" class="max-w-4xl font-bold">
       {{ title }}
     </h3>
-    <p class="mt-4 max-w-2xl text-base text-slate-200 sm:text-lg">
+    <p :style="subtitleStyleObject" class="mt-4 max-w-2xl">
       {{ subtitle }}
     </p>
     <div class="mt-8 flex flex-wrap items-center gap-3">
@@ -36,14 +36,40 @@
 </template>
 
 <script lang="ts" setup>
-withDefaults(
+const props = withDefaults(
   defineProps<{
     title: string;
     subtitle: string;
     useLinks?: boolean;
+    titleFontSize?: number;
+    titleColor?: string;
+    titleFontFamily?: string;
+    subtitleFontSize?: number;
+    subtitleColor?: string;
+    subtitleFontFamily?: string;
   }>(),
   {
-    useLinks: false
+    useLinks: false,
+    titleFontSize: 48,
+    titleColor: '#ffffff',
+    titleFontFamily: 'inherit',
+    subtitleFontSize: 18,
+    subtitleColor: '#e2e8f0',
+    subtitleFontFamily: 'inherit'
   }
 );
+
+const titleStyleObject = computed(() => ({
+  fontSize: `${props.titleFontSize}px`,
+  color: props.titleColor,
+  fontFamily: props.titleFontFamily,
+  lineHeight: '1.1'
+}));
+
+const subtitleStyleObject = computed(() => ({
+  fontSize: `${props.subtitleFontSize}px`,
+  color: props.subtitleColor,
+  fontFamily: props.subtitleFontFamily,
+  lineHeight: '1.5'
+}));
 </script>
