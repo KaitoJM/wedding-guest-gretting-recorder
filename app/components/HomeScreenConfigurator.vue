@@ -71,6 +71,23 @@
             />
           </label>
 
+          <label class="mt-4 block">
+            <span class="text-sm font-medium text-slate-200">Alignment</span>
+            <select
+              v-model="heroTextStyle.contentAlign"
+              class="mt-2 w-full rounded-2xl border border-white/10 bg-slate-950/70 px-4 py-3 text-white outline-none focus:border-emerald-300/60"
+              @change="saveHeroTextStyle"
+            >
+              <option
+                v-for="alignment in alignmentOptions"
+                :key="alignment.value"
+                :value="alignment.value"
+              >
+                {{ alignment.label }}
+              </option>
+            </select>
+          </label>
+
           <div class="mt-6 grid gap-4 md:grid-cols-2">
             <div class="rounded-2xl border border-white/10 bg-slate-950/40 p-4">
               <p class="text-sm font-medium text-slate-100">Title style</p>
@@ -255,6 +272,7 @@
                   :subtitle-color="heroTextStyle.subtitleColor"
                   :subtitle-font-family="heroTextStyle.subtitleFontFamily"
                   :subtitle-font-weight="heroTextStyle.subtitleFontWeight"
+                  :content-align="heroTextStyle.contentAlign"
                 />
 
                 <button
@@ -290,7 +308,8 @@ const DEFAULT_HERO_TEXT_STYLE = {
   subtitleFontSize: 18,
   subtitleColor: '#e2e8f0',
   subtitleFontFamily: 'inherit',
-  subtitleFontWeight: 400
+  subtitleFontWeight: 400,
+  contentAlign: 'left'
 };
 const DEFAULT_HERO_LAYOUT = {
   x: 15,
@@ -325,6 +344,11 @@ const fontWeightOptions = [
   { label: 'Semibold', value: 600 },
   { label: 'Bold', value: 700 },
   { label: 'Extra Bold', value: 800 }
+] as const;
+const alignmentOptions = [
+  { label: 'Left', value: 'left' },
+  { label: 'Center', value: 'center' },
+  { label: 'Right', value: 'right' }
 ] as const;
 
 let activePointerMode: 'drag' | 'resize' | null = null;
@@ -494,6 +518,11 @@ const loadConfiguration = () => {
         parsedTextStyle.subtitleFontWeight,
         DEFAULT_HERO_TEXT_STYLE.subtitleFontWeight
       );
+      heroTextStyle.contentAlign =
+        parsedTextStyle.contentAlign === 'center' ||
+        parsedTextStyle.contentAlign === 'right'
+          ? parsedTextStyle.contentAlign
+          : DEFAULT_HERO_TEXT_STYLE.contentAlign;
     } catch {}
   }
 
@@ -530,6 +559,11 @@ const saveHeroTextStyle = () => {
     heroTextStyle.subtitleFontWeight,
     DEFAULT_HERO_TEXT_STYLE.subtitleFontWeight
   );
+  heroTextStyle.contentAlign =
+    heroTextStyle.contentAlign === 'center' ||
+    heroTextStyle.contentAlign === 'right'
+      ? heroTextStyle.contentAlign
+      : DEFAULT_HERO_TEXT_STYLE.contentAlign;
 
   window.localStorage.setItem(
     HERO_TEXT_STYLE_STORAGE_KEY,

@@ -25,6 +25,7 @@
         :subtitle-color="heroTextStyle.subtitleColor"
         :subtitle-font-family="heroTextStyle.subtitleFontFamily"
         :subtitle-font-weight="heroTextStyle.subtitleFontWeight"
+        :content-align="heroTextStyle.contentAlign"
         :use-links="true"
       />
     </div>
@@ -47,7 +48,8 @@ const DEFAULT_HERO_TEXT_STYLE = {
   subtitleFontSize: 18,
   subtitleColor: '#e2e8f0',
   subtitleFontFamily: 'inherit',
-  subtitleFontWeight: 400
+  subtitleFontWeight: 400,
+  contentAlign: 'left'
 };
 const DEFAULT_HERO_LAYOUT = {
   x: 15,
@@ -138,6 +140,11 @@ onMounted(() => {
         parsedTextStyle.subtitleFontWeight,
         DEFAULT_HERO_TEXT_STYLE.subtitleFontWeight
       );
+      heroTextStyle.contentAlign =
+        parsedTextStyle.contentAlign === 'center' ||
+        parsedTextStyle.contentAlign === 'right'
+          ? parsedTextStyle.contentAlign
+          : DEFAULT_HERO_TEXT_STYLE.contentAlign;
     } catch {}
   }
 

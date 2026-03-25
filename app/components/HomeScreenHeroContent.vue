@@ -1,12 +1,12 @@
 <template>
-  <div class="flex h-full w-full flex-col items-start justify-start text-left">
+  <div :class="containerClass" class="flex h-full w-full flex-col justify-start">
     <h3 :style="titleStyleObject" class="max-w-4xl font-bold">
       {{ title }}
     </h3>
     <p :style="subtitleStyleObject" class="mt-4 max-w-2xl">
       {{ subtitle }}
     </p>
-    <div class="mt-8 flex flex-wrap items-center gap-3">
+    <div :class="actionsClass" class="mt-8 flex w-full flex-wrap items-center gap-3">
       <NuxtLink
         v-if="useLinks"
         to="/record"
@@ -49,6 +49,7 @@ const props = withDefaults(
     subtitleColor?: string;
     subtitleFontFamily?: string;
     subtitleFontWeight?: number | string;
+    contentAlign?: 'left' | 'center' | 'right';
   }>(),
   {
     useLinks: false,
@@ -59,9 +60,34 @@ const props = withDefaults(
     subtitleFontSize: 18,
     subtitleColor: '#e2e8f0',
     subtitleFontFamily: 'inherit',
-    subtitleFontWeight: 400
+    subtitleFontWeight: 400,
+    contentAlign: 'left'
   }
 );
+
+const containerClass = computed(() => {
+  if (props.contentAlign === 'center') {
+    return 'items-center text-center';
+  }
+
+  if (props.contentAlign === 'right') {
+    return 'items-end text-right';
+  }
+
+  return 'items-start text-left';
+});
+
+const actionsClass = computed(() => {
+  if (props.contentAlign === 'center') {
+    return 'justify-center';
+  }
+
+  if (props.contentAlign === 'right') {
+    return 'justify-end';
+  }
+
+  return 'justify-start';
+});
 
 const titleStyleObject = computed(() => ({
   fontSize: `${props.titleFontSize}px`,
