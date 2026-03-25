@@ -11,30 +11,54 @@
     />
 
     <div
-      class="relative z-10 flex min-h-screen flex-col items-center justify-center px-6 text-center"
+      :style="heroLayoutStyle"
+      class="absolute z-10 flex text-center"
     >
-      <h1 class="max-w-4xl text-3xl font-bold text-white sm:text-5xl">
-        Welcome to the Wedding Guest Greeting Recorder
-      </h1>
-      <p class="mt-4 max-w-2xl text-base text-slate-200 sm:text-lg">
-        Record and save your wedding guest greetings!
-      </p>
-      <div class="mt-8 flex flex-wrap items-center justify-center gap-3">
-        <NuxtLink to="/record" class="rounded-full bg-rose-500 px-6 py-3 text-white transition hover:bg-rose-400">
-          Record Now
-        </NuxtLink>
-        <NuxtLink to="/videos" class="rounded-full border border-white/20 bg-white/10 px-6 py-3 text-white transition hover:bg-white/15">
-          Manage Media
-        </NuxtLink>
-      </div>
+      <HomeScreenHeroContent
+        :title="welcomeTitle"
+        :subtitle="welcomeSubtitle"
+        :use-links="true"
+      />
     </div>
   </div>
 </template>
 
 <script lang="ts" setup>
 const BACKGROUND_STORAGE_KEY = 'wedding-greeting-background-image';
+const WELCOME_TITLE_STORAGE_KEY = 'wedding-greeting-welcome-title';
+const WELCOME_SUBTITLE_STORAGE_KEY = 'wedding-greeting-welcome-subtitle';
+const HERO_LAYOUT_STORAGE_KEY = 'wedding-greeting-hero-layout';
+const DEFAULT_WELCOME_TITLE = 'Welcome to the Wedding Guest Greeting Recorder';
+const DEFAULT_WELCOME_SUBTITLE = 'Record and save your wedding guest greetings!';
+const DEFAULT_HERO_LAYOUT = {
+  x: 15,
+  y: 28,
+  width: 42,
+  height: 24
+};
+const MIN_HERO_WIDTH = 18;
+const MIN_HERO_HEIGHT = 12;
 
 const backgroundImage = ref<string | null>(null);
+const welcomeTitle = ref(DEFAULT_WELCOME_TITLE);
+const welcomeSubtitle = ref(DEFAULT_WELCOME_SUBTITLE);
+const heroLayout = reactive({ ...DEFAULT_HERO_LAYOUT });
+
+const heroLayoutStyle = computed(() => ({
+  left: `${heroLayout.x}%`,
+  top: `${heroLayout.y}%`,
+  width: `${heroLayout.width}%`,
+  height: `${heroLayout.height}%`
+}));
+
+const clamp = (value: number, min: number, max: number) =>
+  Math.min(Math.max(value, min), max);
+
+const getStoredNumber = (value: unknown, fallback: number) => {
+  const parsed = Number(value);
+
+  return Number.isFinite(parsed) ? parsed : fallback;
+};
 
 onMounted(() => {
   if (typeof window === 'undefined') {
@@ -42,5 +66,36 @@ onMounted(() => {
   }
 
   backgroundImage.value = window.localStorage.getItem(BACKGROUND_STORAGE_KEY);
+  welcomeTitle.value =
+    window.localStorage.getItem(WELCOME_TITLE_STORAGE_KEY) ||
+    DEFAULT_WELCOME_TITLE;
+  welcomeSubtitle.value =
+    window.localStorage.getItem(WELCOME_SUBTITLE_STORAGE_KEY) ||
+    DEFAULT_WELCOME_SUBTITLE;
+
+  const savedLayout = window.localStorage.getItem(HERO_LAYOUT_STORAGE_KEY);
+
+  if (!savedLayout) {
+    return;
+  }
+
+  try {
+    const parsed = JSON.parse(savedLayout);
+
+    heroLayout.x = clamp(getStoredNumber(parsed.x, DEFAULT_HERO_LAYOUT.x), 0, 100);
+    heroLayout.y = clamp(getStoredNumber(parsed.y, DEFAULT_HERO_LAYOUT.y), 0, 100);
+    heroLayout.width = clamp(
+      getStoredNumber(parsed.width, DEFAULT_HERO_LAYOUT.width),
+      MIN_HERO_WIDTH,
+      100
+    );
+    heroLayout.height = clamp(
+      getStoredNumber(parsed.height, DEFAULT_HERO_LAYOUT.height),
+      MIN_HERO_HEIGHT,
+      100
+    );
+    heroLayout.x = clamp(heroLayout.x, 0, 100 - heroLayout.width);
+    heroLayout.y = clamp(heroLayout.y, 0, 100 - heroLayout.height);
+  } catch {}
 });
 </script>
