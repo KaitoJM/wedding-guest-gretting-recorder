@@ -27,6 +27,7 @@
         :subtitle-font-weight="heroTextStyle.subtitleFontWeight"
         :content-align="heroTextStyle.contentAlign"
         :primary-button-color="heroTextStyle.primaryButtonColor"
+        :use-glass-effect="heroTextStyle.useGlassEffect"
         :use-links="true"
       />
     </div>
@@ -54,6 +55,7 @@ type HeroTextStyle = {
   subtitleFontWeight: number;
   contentAlign: ContentAlign;
   primaryButtonColor: string;
+  useGlassEffect: boolean;
 };
 
 const DEFAULT_HERO_TEXT_STYLE: HeroTextStyle = {
@@ -66,7 +68,8 @@ const DEFAULT_HERO_TEXT_STYLE: HeroTextStyle = {
   subtitleFontFamily: 'inherit',
   subtitleFontWeight: 400,
   contentAlign: 'left',
-  primaryButtonColor: '#f43f5e'
+  primaryButtonColor: '#f43f5e',
+  useGlassEffect: true
 };
 const DEFAULT_HERO_LAYOUT = {
   x: 15,
@@ -166,6 +169,10 @@ onMounted(() => {
         typeof parsedTextStyle.primaryButtonColor === 'string'
           ? parsedTextStyle.primaryButtonColor
           : DEFAULT_HERO_TEXT_STYLE.primaryButtonColor;
+      heroTextStyle.useGlassEffect =
+        typeof parsedTextStyle.useGlassEffect === 'boolean'
+          ? parsedTextStyle.useGlassEffect
+          : DEFAULT_HERO_TEXT_STYLE.useGlassEffect;
     } catch {}
   }
 

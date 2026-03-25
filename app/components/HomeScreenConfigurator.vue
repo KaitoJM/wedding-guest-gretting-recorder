@@ -98,6 +98,42 @@
             />
           </label>
 
+          <label class="mt-4 flex items-center gap-3 rounded-2xl border border-white/10 bg-slate-950/40 px-4 py-3">
+            <input
+              v-model="heroTextStyle.useGlassEffect"
+              class="h-4 w-4 rounded border-white/20 bg-slate-950/70 accent-emerald-300"
+              type="checkbox"
+              @change="saveHeroTextStyle"
+            />
+            <span class="text-sm text-slate-200">Use glass effect on content container</span>
+          </label>
+
+          <div class="mt-4 rounded-2xl border border-white/10 bg-slate-950/40 p-4">
+            <div class="flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <p class="text-sm font-medium text-slate-100">Device fonts</p>
+                <p class="mt-1 text-xs text-slate-400">
+                  Load installed fonts from this device for the font selectors.
+                </p>
+              </div>
+              <button
+                class="rounded-full border border-white/10 px-4 py-2 text-sm text-slate-200 transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-50"
+                :disabled="isLoadingDeviceFonts || !deviceFontsSupported"
+                @click="loadDeviceFonts"
+              >
+                {{ isLoadingDeviceFonts ? 'Loading fonts...' : 'Load device fonts' }}
+              </button>
+            </div>
+            <p class="mt-3 text-xs text-slate-400">
+              {{
+                deviceFontsMessage ||
+                (deviceFontsSupported
+                  ? 'Supported in Chromium-based browsers with local font access.'
+                  : 'This browser does not expose installed device fonts.')
+              }}
+            </p>
+          </div>
+
           <div class="mt-6 grid gap-4 md:grid-cols-2">
             <div class="rounded-2xl border border-white/10 bg-slate-950/40 p-4">
               <p class="text-sm font-medium text-slate-100">Title style</p>
@@ -284,6 +320,7 @@
                   :subtitle-font-weight="heroTextStyle.subtitleFontWeight"
                   :content-align="heroTextStyle.contentAlign"
                   :primary-button-color="heroTextStyle.primaryButtonColor"
+                  :use-glass-effect="heroTextStyle.useGlassEffect"
                 />
 
                 <button
@@ -324,6 +361,7 @@ type HeroTextStyle = {
   subtitleFontWeight: number;
   contentAlign: ContentAlign;
   primaryButtonColor: string;
+  useGlassEffect: boolean;
 };
 
 const DEFAULT_HERO_TEXT_STYLE: HeroTextStyle = {
@@ -336,7 +374,8 @@ const DEFAULT_HERO_TEXT_STYLE: HeroTextStyle = {
   subtitleFontFamily: 'inherit',
   subtitleFontWeight: 400,
   contentAlign: 'left',
-  primaryButtonColor: '#f43f5e'
+  primaryButtonColor: '#f43f5e',
+  useGlassEffect: true
 };
 const DEFAULT_HERO_LAYOUT = {
   x: 15,
@@ -357,7 +396,7 @@ const previewFrame = ref<HTMLDivElement | null>(null);
 const previewAspectRatio = ref('9 / 16');
 const previewScale = ref(1);
 const heroLayout = reactive({ ...DEFAULT_HERO_LAYOUT });
-const fontOptions = [
+const defaultFontOptions = [
   { label: 'Default', value: 'inherit' },
   { label: 'Georgia', value: 'Georgia, serif' },
   { label: 'Times', value: '"Times New Roman", serif' },
@@ -365,6 +404,9 @@ const fontOptions = [
   { label: 'Verdana', value: 'Verdana, sans-serif' },
   { label: 'Courier', value: '"Courier New", monospace' }
 ] as const;
+const fontOptions = ref<FontOption[]>(
+  defaultFontOptions.map((font) => ({ ...font }))
+);
 const fontWeightOptions = [
   { label: 'Regular', value: 400 },
   { label: 'Medium', value: 500 },
@@ -377,6 +419,23 @@ const alignmentOptions = [
   { label: 'Center', value: 'center' },
   { label: 'Right', value: 'right' }
 ] as const;
+const deviceFontsSupported = ref(false);
+const isLoadingDeviceFonts = ref(false);
+const deviceFontsMessage = ref('');
+
+type LocalFontData = {
+  family?: string;
+  fullName?: string;
+};
+
+type FontOption = {
+  label: string;
+  value: string;
+};
+
+type WindowWithLocalFonts = Window & {
+  queryLocalFonts?: () => Promise<LocalFontData[]>;
+};
 
 let activePointerMode: 'drag' | 'resize' | null = null;
 let pointerStartX = 0;
@@ -413,10 +472,79 @@ const getStoredNumber = (value: unknown, fallback: number) => {
   return Number.isFinite(parsed) ? parsed : fallback;
 };
 
+const syncFontOptions = (deviceFonts: string[] = []) => {
+  const seen = new Set<string>();
+  const merged = [
+    ...defaultFontOptions.map((font) => ({ label: font.label, value: font.value })),
+    ...deviceFonts.map((font) => ({ label: font, value: `"${font}"` }))
+  ].filter((font) => {
+    if (seen.has(font.value)) {
+      return false;
+    }
+
+    seen.add(font.value);
+    return true;
+  });
+
+  const ensureCurrentFont = (fontValue: string) => {
+    if (!fontValue || seen.has(fontValue)) {
+      return;
+    }
+
+    merged.push({
+      label: fontValue.replaceAll('"', ''),
+      value: fontValue
+    });
+    seen.add(fontValue);
+  };
+
+  ensureCurrentFont(heroTextStyle.titleFontFamily);
+  ensureCurrentFont(heroTextStyle.subtitleFontFamily);
+
+  fontOptions.value = merged;
+};
+
 const windowSize = reactive({
   width: 390,
   height: 844
 });
+
+const loadDeviceFonts = async () => {
+  if (typeof window === 'undefined') {
+    return;
+  }
+
+  const localFontWindow = window as WindowWithLocalFonts;
+
+  if (!localFontWindow.queryLocalFonts) {
+    deviceFontsMessage.value =
+      'Installed device fonts are not available in this browser.';
+    return;
+  }
+
+  isLoadingDeviceFonts.value = true;
+  deviceFontsMessage.value = '';
+
+  try {
+    const fonts = await localFontWindow.queryLocalFonts();
+    const families = [...new Set(
+      fonts
+        .map((font) => font.family?.trim() || font.fullName?.trim() || '')
+        .filter(Boolean)
+    )].sort((a, b) => a.localeCompare(b));
+
+    syncFontOptions(families);
+    deviceFontsMessage.value =
+      families.length > 0
+        ? `${families.length} device fonts loaded.`
+        : 'No installed device fonts were returned.';
+  } catch {
+    deviceFontsMessage.value =
+      'Device font access was denied or is unavailable.';
+  } finally {
+    isLoadingDeviceFonts.value = false;
+  }
+};
 
 const updatePreviewAspectRatio = () => {
   if (typeof window === 'undefined' || !window.innerWidth || !window.innerHeight) {
@@ -554,6 +682,10 @@ const loadConfiguration = () => {
         typeof parsedTextStyle.primaryButtonColor === 'string'
           ? parsedTextStyle.primaryButtonColor
           : DEFAULT_HERO_TEXT_STYLE.primaryButtonColor;
+      heroTextStyle.useGlassEffect =
+        typeof parsedTextStyle.useGlassEffect === 'boolean'
+          ? parsedTextStyle.useGlassEffect
+          : DEFAULT_HERO_TEXT_STYLE.useGlassEffect;
     } catch {}
   }
 
@@ -599,6 +731,7 @@ const saveHeroTextStyle = () => {
     typeof heroTextStyle.primaryButtonColor === 'string'
       ? heroTextStyle.primaryButtonColor
       : DEFAULT_HERO_TEXT_STYLE.primaryButtonColor;
+  heroTextStyle.useGlassEffect = Boolean(heroTextStyle.useGlassEffect);
 
   window.localStorage.setItem(
     HERO_TEXT_STYLE_STORAGE_KEY,
@@ -731,6 +864,10 @@ const startResizing = (event: PointerEvent) => {
 
 onMounted(() => {
   loadConfiguration();
+  syncFontOptions();
+  deviceFontsSupported.value =
+    typeof window !== 'undefined' &&
+    typeof (window as WindowWithLocalFonts).queryLocalFonts === 'function';
   updatePreviewAspectRatio();
   window.addEventListener('resize', updatePreviewAspectRatio);
   window.addEventListener('pointermove', updateHeroLayoutFromPointer);
