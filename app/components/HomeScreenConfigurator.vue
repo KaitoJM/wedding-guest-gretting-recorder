@@ -1,345 +1,385 @@
 <template>
-  <section class="mx-auto w-full flex-1">
-    <div class="grid gap-6 lg:grid-cols-[0.8fr_1.2fr]">
-      <div class="rounded-3xl border border-white/10 bg-white/5 p-6">
-        <h2 class="text-xl font-semibold text-white">Background image</h2>
-        <p class="mt-2 text-sm text-slate-300">
-          Upload a single image to show behind the welcome screen on the
-          home page. This is saved in this browser only using local storage.
-        </p>
-
-        <label
-          :class="[
-            'mt-6 flex cursor-pointer flex-col items-center justify-center rounded-3xl border border-dashed px-6 py-10 text-center transition',
-            isDraggingBackground
-              ? 'border-emerald-200 bg-emerald-300/20'
-              : 'border-emerald-300/40 bg-emerald-400/10 hover:border-emerald-300/70 hover:bg-emerald-400/15',
-          ]"
-          @dragenter.prevent="isDraggingBackground = true"
-          @dragover.prevent="isDraggingBackground = true"
-          @dragleave.prevent="isDraggingBackground = false"
-          @drop.prevent="onBackgroundDrop"
-        >
-          <span class="text-base font-medium text-white">Choose image</span>
-          <span class="mt-2 text-sm text-slate-300">
-            Drop an image here or click to browse. PNG, JPG, or WEBP only.
-          </span>
-          <input
-            accept="image/png,image/jpeg,image/webp"
-            class="hidden"
-            type="file"
-            @change="onBackgroundSelect"
-          />
-        </label>
-
-        <p v-if="backgroundMessage" class="mt-4 text-sm text-emerald-300">
-          {{ backgroundMessage }}
-        </p>
-
-        <button
-          v-if="backgroundImage"
-          class="mt-4 rounded-full border border-white/15 px-4 py-2 text-sm text-slate-200 transition hover:bg-white/10"
-          @click="removeBackground"
-        >
-          Remove background image
-        </button>
-
-        <div class="mt-8 border-t border-white/10 pt-6">
-          <h3 class="text-lg font-semibold text-white">Welcome text</h3>
-          <p class="mt-2 text-sm text-slate-300">
-            Edit the title and subtitle shown on the home screen.
+  <section class="mx-auto flex h-full min-h-0 w-full flex-1 overflow-hidden rounded-[2rem] border border-white/10 bg-slate-950/80 shadow-[0_30px_80px_rgba(2,6,23,0.45)]">
+    <aside class="w-full max-w-sm shrink-0 overflow-hidden border-b border-white/10 bg-slate-950/95 lg:border-b-0 lg:border-r">
+      <div class="flex h-full min-h-0 flex-col">
+        <div class="border-b border-white/10 px-5 py-4">
+          <p class="text-xs uppercase tracking-[0.35em] text-emerald-300/80">Video Greetings Admin</p>
+          <h2 class="mt-2 text-lg font-semibold text-white">Media Control Room</h2>
+          <p class="mt-2 text-sm text-slate-400">
+            Edit the hero and use the canvas on the right like a stage.
           </p>
 
-          <label class="mt-5 block">
-            <span class="text-sm font-medium text-slate-200">Title</span>
-            <input
-              v-model="welcomeTitle"
-              class="mt-2 w-full rounded-2xl border border-white/10 bg-slate-950/70 px-4 py-3 text-white outline-none transition placeholder:text-slate-500 focus:border-emerald-300/60"
-              placeholder="Welcome to the Wedding Guest Greeting Recorder"
-              type="text"
-              @input="saveWelcomeText"
-            />
-          </label>
-
-          <label class="mt-4 block">
-            <span class="text-sm font-medium text-slate-200">Subtitle</span>
-            <textarea
-              v-model="welcomeSubtitle"
-              class="mt-2 min-h-28 w-full rounded-2xl border border-white/10 bg-slate-950/70 px-4 py-3 text-white outline-none transition placeholder:text-slate-500 focus:border-emerald-300/60"
-              placeholder="Record and save your wedding guest greetings!"
-              @input="saveWelcomeText"
-            />
-          </label>
-
-          <label class="mt-4 block">
-            <span class="text-sm font-medium text-slate-200">Alignment</span>
-            <select
-              v-model="heroTextStyle.contentAlign"
-              class="mt-2 w-full rounded-2xl border border-white/10 bg-slate-950/70 px-4 py-3 text-white outline-none focus:border-emerald-300/60"
-              @change="saveHeroTextStyle"
+          <div class="mt-4 flex w-full rounded-full border border-white/10 bg-white/5 p-1">
+            <button
+              class="flex-1 rounded-full px-4 py-2 text-sm font-medium text-slate-300 transition hover:bg-white/5 hover:text-white"
+              @click="emit('show-videos')"
             >
-              <option
-                v-for="alignment in alignmentOptions"
-                :key="alignment.value"
-                :value="alignment.value"
-              >
-                {{ alignment.label }}
-              </option>
-            </select>
-          </label>
+              Videos
+            </button>
+            <button
+              class="flex-1 rounded-full bg-emerald-400 px-4 py-2 text-sm font-medium text-slate-950"
+            >
+              Background image
+            </button>
+          </div>
+        </div>
 
-          <label class="mt-4 block">
-            <span class="text-sm font-medium text-slate-200">Primary button color</span>
-            <input
-              v-model="heroTextStyle.primaryButtonColor"
-              class="mt-2 h-11 w-full rounded-xl border border-white/10 bg-slate-950/70 p-1"
-              type="color"
-              @input="saveHeroTextStyle"
-            />
-          </label>
-
-          <label class="mt-4 flex items-center gap-3 rounded-2xl border border-white/10 bg-slate-950/40 px-4 py-3">
-            <input
-              v-model="heroTextStyle.useGlassEffect"
-              class="h-4 w-4 rounded border-white/20 bg-slate-950/70 accent-emerald-300"
-              type="checkbox"
-              @change="saveHeroTextStyle"
-            />
-            <span class="text-sm text-slate-200">Use glass effect on content container</span>
-          </label>
-
-          <div class="mt-4 rounded-2xl border border-white/10 bg-slate-950/40 p-4">
-            <div class="flex flex-wrap items-center justify-between gap-3">
+        <div class="flex-1 space-y-4 overflow-y-auto px-4 py-4">
+          <section class="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
+            <div class="flex items-center justify-between gap-3">
               <div>
-                <p class="text-sm font-medium text-slate-100">Device fonts</p>
-                <p class="mt-1 text-xs text-slate-400">
-                  Load installed fonts from this device for the font selectors.
-                </p>
+                <p class="text-sm font-medium text-white">Background</p>
+                <p class="mt-1 text-xs text-slate-400">Saved locally for this browser only.</p>
               </div>
               <button
-                class="rounded-full border border-white/10 px-4 py-2 text-sm text-slate-200 transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-50"
+                v-if="backgroundImage"
+                class="rounded-full border border-white/10 px-3 py-1.5 text-xs text-slate-200 transition hover:bg-white/10"
+                @click="removeBackground"
+              >
+                Remove
+              </button>
+            </div>
+
+            <label
+              :class="[
+                'mt-4 flex cursor-pointer flex-col items-center justify-center rounded-2xl border border-dashed px-4 py-6 text-center transition',
+                isDraggingBackground
+                  ? 'border-emerald-200 bg-emerald-300/20'
+                  : 'border-emerald-300/40 bg-emerald-400/10 hover:border-emerald-300/70 hover:bg-emerald-400/15',
+              ]"
+              @dragenter.prevent="isDraggingBackground = true"
+              @dragover.prevent="isDraggingBackground = true"
+              @dragleave.prevent="isDraggingBackground = false"
+              @drop.prevent="onBackgroundDrop"
+            >
+              <span class="text-sm font-medium text-white">Drop image or click to browse</span>
+              <span class="mt-2 text-xs text-slate-300">PNG, JPG, or WEBP</span>
+              <input
+                accept="image/png,image/jpeg,image/webp"
+                class="hidden"
+                type="file"
+                @change="onBackgroundSelect"
+              />
+            </label>
+
+            <p v-if="backgroundMessage" class="mt-3 text-xs text-emerald-300">
+              {{ backgroundMessage }}
+            </p>
+          </section>
+
+          <section class="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
+            <p class="text-sm font-medium text-white">Content</p>
+            <div class="mt-4 space-y-3">
+              <label class="block">
+                <span class="text-xs uppercase tracking-[0.2em] text-slate-400">Title</span>
+                <input
+                  v-model="welcomeTitle"
+                  class="mt-2 w-full rounded-xl border border-white/10 bg-slate-950/70 px-3 py-2.5 text-sm text-white outline-none transition placeholder:text-slate-500 focus:border-emerald-300/60"
+                  placeholder="Welcome to the Wedding Guest Greeting Recorder"
+                  type="text"
+                  @input="saveWelcomeText"
+                />
+              </label>
+
+              <label class="block">
+                <span class="text-xs uppercase tracking-[0.2em] text-slate-400">Subtitle</span>
+                <textarea
+                  v-model="welcomeSubtitle"
+                  class="mt-2 min-h-24 w-full rounded-xl border border-white/10 bg-slate-950/70 px-3 py-2.5 text-sm text-white outline-none transition placeholder:text-slate-500 focus:border-emerald-300/60"
+                  placeholder="Record and save your wedding guest greetings!"
+                  @input="saveWelcomeText"
+                />
+              </label>
+            </div>
+          </section>
+
+          <section class="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
+            <div class="flex items-center justify-between gap-3">
+              <p class="text-sm font-medium text-white">Style</p>
+              <button
+                class="rounded-full border border-white/10 px-3 py-1.5 text-xs text-slate-300 transition hover:bg-white/10"
+                @click="resetHeroLayout"
+              >
+                Reset layout
+              </button>
+            </div>
+
+            <div class="mt-4 space-y-3">
+              <div class="grid gap-3 sm:grid-cols-2">
+                <label class="block">
+                  <span class="text-xs uppercase tracking-[0.2em] text-slate-400">Align</span>
+                  <select
+                    v-model="heroTextStyle.contentAlign"
+                    class="mt-2 w-full rounded-xl border border-white/10 bg-slate-950/70 px-3 py-2.5 text-sm text-white outline-none focus:border-emerald-300/60"
+                    @change="saveHeroTextStyle"
+                  >
+                    <option
+                      v-for="alignment in alignmentOptions"
+                      :key="alignment.value"
+                      :value="alignment.value"
+                    >
+                      {{ alignment.label }}
+                    </option>
+                  </select>
+                </label>
+
+                <label class="block">
+                  <span class="text-xs uppercase tracking-[0.2em] text-slate-400">Primary</span>
+                  <input
+                    v-model="heroTextStyle.primaryButtonColor"
+                    class="mt-2 h-11 w-full rounded-xl border border-white/10 bg-slate-950/70 p-1"
+                    type="color"
+                    @input="saveHeroTextStyle"
+                  />
+                </label>
+              </div>
+
+              <label class="flex items-center gap-3 rounded-xl border border-white/10 bg-slate-950/50 px-3 py-2.5">
+                <input
+                  v-model="heroTextStyle.useGlassEffect"
+                  class="h-4 w-4 rounded border-white/20 bg-slate-950/70 accent-emerald-300"
+                  type="checkbox"
+                  @change="saveHeroTextStyle"
+                />
+                <span class="text-sm text-slate-200">Glass effect</span>
+              </label>
+            </div>
+          </section>
+
+          <section class="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
+            <div class="flex items-center justify-between gap-3">
+              <div>
+                <p class="text-sm font-medium text-white">Fonts</p>
+                <p class="mt-1 text-xs text-slate-400">Use presets or load device fonts.</p>
+              </div>
+              <button
+                class="rounded-full border border-white/10 px-3 py-1.5 text-xs text-slate-200 transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-50"
                 :disabled="isLoadingDeviceFonts || !deviceFontsSupported"
                 @click="loadDeviceFonts"
               >
-                {{ isLoadingDeviceFonts ? 'Loading fonts...' : 'Load device fonts' }}
+                {{ isLoadingDeviceFonts ? 'Loading...' : 'Load' }}
               </button>
             </div>
             <p class="mt-3 text-xs text-slate-400">
               {{
                 deviceFontsMessage ||
                 (deviceFontsSupported
-                  ? 'Supported in Chromium-based browsers with local font access.'
-                  : 'This browser does not expose installed device fonts.')
+                  ? 'Chromium browsers can expose local fonts.'
+                  : 'Installed device fonts are unavailable here.')
               }}
             </p>
-          </div>
+          </section>
 
-          <div class="mt-6 grid gap-4 md:grid-cols-2">
-            <div class="rounded-2xl border border-white/10 bg-slate-950/40 p-4">
-              <p class="text-sm font-medium text-slate-100">Title style</p>
+          <div class="grid gap-4">
+            <section class="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
+              <p class="text-sm font-medium text-white">Title Typography</p>
+              <div class="mt-4 space-y-3">
+                <label class="block">
+                  <div class="flex items-center justify-between text-xs uppercase tracking-[0.2em] text-slate-400">
+                    <span>Size</span>
+                    <span>{{ heroTextStyle.titleFontSize }}px</span>
+                  </div>
+                  <input
+                    v-model="heroTextStyle.titleFontSize"
+                    class="mt-2 w-full accent-emerald-300"
+                    min="24"
+                    max="96"
+                    type="range"
+                    @input="saveHeroTextStyle"
+                  />
+                </label>
 
-              <label class="mt-4 block">
-                <span class="text-xs uppercase tracking-[0.2em] text-slate-400">Size</span>
-                <input
-                  v-model="heroTextStyle.titleFontSize"
-                  class="mt-2 w-full accent-emerald-300"
-                  min="24"
-                  max="96"
-                  type="range"
-                  @input="saveHeroTextStyle"
-                />
-                <span class="mt-1 block text-sm text-slate-300">
-                  {{ heroTextStyle.titleFontSize }}px
-                </span>
-              </label>
+                <div class="grid gap-3 sm:grid-cols-[1fr_auto]">
+                  <label class="block">
+                    <span class="text-xs uppercase tracking-[0.2em] text-slate-400">Font</span>
+                    <select
+                      v-model="heroTextStyle.titleFontFamily"
+                      class="mt-2 w-full rounded-xl border border-white/10 bg-slate-950/70 px-3 py-2.5 text-sm text-white outline-none focus:border-emerald-300/60"
+                      @change="saveHeroTextStyle"
+                    >
+                      <option
+                        v-for="font in fontOptions"
+                        :key="font.value"
+                        :value="font.value"
+                      >
+                        {{ font.label }}
+                      </option>
+                    </select>
+                  </label>
 
-              <label class="mt-4 block">
-                <span class="text-xs uppercase tracking-[0.2em] text-slate-400">Color</span>
-                <input
-                  v-model="heroTextStyle.titleColor"
-                  class="mt-2 h-11 w-full rounded-xl border border-white/10 bg-slate-950/70 p-1"
-                  type="color"
-                  @input="saveHeroTextStyle"
-                />
-              </label>
+                  <label class="block sm:min-w-28">
+                    <span class="text-xs uppercase tracking-[0.2em] text-slate-400">Color</span>
+                    <input
+                      v-model="heroTextStyle.titleColor"
+                      class="mt-2 h-11 w-full rounded-xl border border-white/10 bg-slate-950/70 p-1"
+                      type="color"
+                      @input="saveHeroTextStyle"
+                    />
+                  </label>
+                </div>
 
-              <label class="mt-4 block">
-                <span class="text-xs uppercase tracking-[0.2em] text-slate-400">Font</span>
-                <select
-                  v-model="heroTextStyle.titleFontFamily"
-                  class="mt-2 w-full rounded-2xl border border-white/10 bg-slate-950/70 px-4 py-3 text-white outline-none focus:border-emerald-300/60"
-                  @change="saveHeroTextStyle"
-                >
-                  <option
-                    v-for="font in fontOptions"
-                    :key="font.value"
-                    :value="font.value"
+                <label class="block">
+                  <span class="text-xs uppercase tracking-[0.2em] text-slate-400">Weight</span>
+                  <select
+                    v-model="heroTextStyle.titleFontWeight"
+                    class="mt-2 w-full rounded-xl border border-white/10 bg-slate-950/70 px-3 py-2.5 text-sm text-white outline-none focus:border-emerald-300/60"
+                    @change="saveHeroTextStyle"
                   >
-                    {{ font.label }}
-                  </option>
-                </select>
-              </label>
+                    <option
+                      v-for="weight in fontWeightOptions"
+                      :key="`title-${weight.value}`"
+                      :value="weight.value"
+                    >
+                      {{ weight.label }}
+                    </option>
+                  </select>
+                </label>
+              </div>
+            </section>
 
-              <label class="mt-4 block">
-                <span class="text-xs uppercase tracking-[0.2em] text-slate-400">Weight</span>
-                <select
-                  v-model="heroTextStyle.titleFontWeight"
-                  class="mt-2 w-full rounded-2xl border border-white/10 bg-slate-950/70 px-4 py-3 text-white outline-none focus:border-emerald-300/60"
-                  @change="saveHeroTextStyle"
-                >
-                  <option
-                    v-for="weight in fontWeightOptions"
-                    :key="`title-${weight.value}`"
-                    :value="weight.value"
+            <section class="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
+              <p class="text-sm font-medium text-white">Subtitle Typography</p>
+              <div class="mt-4 space-y-3">
+                <label class="block">
+                  <div class="flex items-center justify-between text-xs uppercase tracking-[0.2em] text-slate-400">
+                    <span>Size</span>
+                    <span>{{ heroTextStyle.subtitleFontSize }}px</span>
+                  </div>
+                  <input
+                    v-model="heroTextStyle.subtitleFontSize"
+                    class="mt-2 w-full accent-emerald-300"
+                    min="12"
+                    max="48"
+                    type="range"
+                    @input="saveHeroTextStyle"
+                  />
+                </label>
+
+                <div class="grid gap-3 sm:grid-cols-[1fr_auto]">
+                  <label class="block">
+                    <span class="text-xs uppercase tracking-[0.2em] text-slate-400">Font</span>
+                    <select
+                      v-model="heroTextStyle.subtitleFontFamily"
+                      class="mt-2 w-full rounded-xl border border-white/10 bg-slate-950/70 px-3 py-2.5 text-sm text-white outline-none focus:border-emerald-300/60"
+                      @change="saveHeroTextStyle"
+                    >
+                      <option
+                        v-for="font in fontOptions"
+                        :key="`subtitle-${font.value}`"
+                        :value="font.value"
+                      >
+                        {{ font.label }}
+                      </option>
+                    </select>
+                  </label>
+
+                  <label class="block sm:min-w-28">
+                    <span class="text-xs uppercase tracking-[0.2em] text-slate-400">Color</span>
+                    <input
+                      v-model="heroTextStyle.subtitleColor"
+                      class="mt-2 h-11 w-full rounded-xl border border-white/10 bg-slate-950/70 p-1"
+                      type="color"
+                      @input="saveHeroTextStyle"
+                    />
+                  </label>
+                </div>
+
+                <label class="block">
+                  <span class="text-xs uppercase tracking-[0.2em] text-slate-400">Weight</span>
+                  <select
+                    v-model="heroTextStyle.subtitleFontWeight"
+                    class="mt-2 w-full rounded-xl border border-white/10 bg-slate-950/70 px-3 py-2.5 text-sm text-white outline-none focus:border-emerald-300/60"
+                    @change="saveHeroTextStyle"
                   >
-                    {{ weight.label }}
-                  </option>
-                </select>
-              </label>
-            </div>
-
-            <div class="rounded-2xl border border-white/10 bg-slate-950/40 p-4">
-              <p class="text-sm font-medium text-slate-100">Subtitle style</p>
-
-              <label class="mt-4 block">
-                <span class="text-xs uppercase tracking-[0.2em] text-slate-400">Size</span>
-                <input
-                  v-model="heroTextStyle.subtitleFontSize"
-                  class="mt-2 w-full accent-emerald-300"
-                  min="12"
-                  max="48"
-                  type="range"
-                  @input="saveHeroTextStyle"
-                />
-                <span class="mt-1 block text-sm text-slate-300">
-                  {{ heroTextStyle.subtitleFontSize }}px
-                </span>
-              </label>
-
-              <label class="mt-4 block">
-                <span class="text-xs uppercase tracking-[0.2em] text-slate-400">Color</span>
-                <input
-                  v-model="heroTextStyle.subtitleColor"
-                  class="mt-2 h-11 w-full rounded-xl border border-white/10 bg-slate-950/70 p-1"
-                  type="color"
-                  @input="saveHeroTextStyle"
-                />
-              </label>
-
-              <label class="mt-4 block">
-                <span class="text-xs uppercase tracking-[0.2em] text-slate-400">Font</span>
-                <select
-                  v-model="heroTextStyle.subtitleFontFamily"
-                  class="mt-2 w-full rounded-2xl border border-white/10 bg-slate-950/70 px-4 py-3 text-white outline-none focus:border-emerald-300/60"
-                  @change="saveHeroTextStyle"
-                >
-                  <option
-                    v-for="font in fontOptions"
-                    :key="`subtitle-${font.value}`"
-                    :value="font.value"
-                  >
-                    {{ font.label }}
-                  </option>
-                </select>
-              </label>
-
-              <label class="mt-4 block">
-                <span class="text-xs uppercase tracking-[0.2em] text-slate-400">Weight</span>
-                <select
-                  v-model="heroTextStyle.subtitleFontWeight"
-                  class="mt-2 w-full rounded-2xl border border-white/10 bg-slate-950/70 px-4 py-3 text-white outline-none focus:border-emerald-300/60"
-                  @change="saveHeroTextStyle"
-                >
-                  <option
-                    v-for="weight in fontWeightOptions"
-                    :key="`subtitle-${weight.value}`"
-                    :value="weight.value"
-                  >
-                    {{ weight.label }}
-                  </option>
-                </select>
-              </label>
-            </div>
+                    <option
+                      v-for="weight in fontWeightOptions"
+                      :key="`subtitle-${weight.value}`"
+                      :value="weight.value"
+                    >
+                      {{ weight.label }}
+                    </option>
+                  </select>
+                </label>
+              </div>
+            </section>
           </div>
         </div>
       </div>
+    </aside>
 
-      <div class="rounded-3xl border border-white/10 bg-slate-900/80 p-4">
-        <div class="mb-3 flex items-center justify-between gap-3">
-          <p
-            class="text-sm font-medium uppercase tracking-[0.3em] text-slate-400"
+    <div class="relative flex min-h-0 flex-1 flex-col overflow-hidden bg-[linear-gradient(135deg,rgba(15,23,42,0.95),rgba(2,6,23,0.98))]">
+      <div class="flex flex-1 items-center justify-center p-4 sm:p-6 lg:p-8">
+        <div class="relative h-full w-full overflow-hidden rounded-[1.75rem] border border-white/10 bg-slate-950 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]">
+          <div
+            ref="previewFrame"
+            :style="{ aspectRatio: previewAspectRatio }"
+            class="absolute inset-0 m-auto max-h-full max-w-full overflow-hidden rounded-[1.75rem] bg-slate-950"
           >
-            Preview
-          </p>
-          <button
-            class="rounded-full border border-white/10 px-3 py-1 text-xs text-slate-300 transition hover:bg-white/10"
-            @click="resetHeroLayout"
-          >
-            Reset layout
-          </button>
-        </div>
-        <div
-          ref="previewFrame"
-          :style="{ aspectRatio: previewAspectRatio }"
-          class="relative w-full overflow-hidden rounded-2xl border border-white/10 bg-slate-950"
-        >
-          <div :style="scaledStageStyle" class="absolute left-0 top-0 origin-top-left">
-            <div
-              :style="virtualStageStyle"
-              class="relative overflow-hidden bg-slate-950"
-            >
+            <div :style="scaledStageStyle" class="absolute left-0 top-0 origin-top-left">
               <div
-                v-if="backgroundImage"
-                :style="{ backgroundImage: `url(${backgroundImage})` }"
-                class="absolute inset-0 bg-cover bg-center"
-              />
-              <div
-                class="absolute inset-0"
-                :class="
-                  backgroundImage
-                    ? 'bg-black/45'
-                    : 'bg-[radial-gradient(circle_at_top,#334155,#020617_65%)]'
-                "
-              />
-
-              <div
-                :style="heroLayoutStyle"
-                class="absolute z-10 flex cursor-move touch-none select-none rounded-3xl border-2 border-dashed border-emerald-300/70 text-center shadow-[0_0_0_1px_rgba(15,23,42,0.35)]"
-                @pointerdown="startDragging"
+                :style="virtualStageStyle"
+                class="relative overflow-hidden bg-slate-950"
               >
-                <HomeScreenHeroContent
-                  :title="welcomeTitle"
-                  :subtitle="welcomeSubtitle"
-                  :title-font-size="heroTextStyle.titleFontSize"
-                  :title-color="heroTextStyle.titleColor"
-                  :title-font-family="heroTextStyle.titleFontFamily"
-                  :title-font-weight="heroTextStyle.titleFontWeight"
-                  :subtitle-font-size="heroTextStyle.subtitleFontSize"
-                  :subtitle-color="heroTextStyle.subtitleColor"
-                  :subtitle-font-family="heroTextStyle.subtitleFontFamily"
-                  :subtitle-font-weight="heroTextStyle.subtitleFontWeight"
-                  :content-align="heroTextStyle.contentAlign"
-                  :primary-button-color="heroTextStyle.primaryButtonColor"
-                  :use-glass-effect="heroTextStyle.useGlassEffect"
+                <div
+                  v-if="backgroundImage"
+                  :style="{ backgroundImage: `url(${backgroundImage})` }"
+                  class="absolute inset-0 bg-cover bg-center"
+                />
+                <div
+                  class="absolute inset-0"
+                  :class="
+                    backgroundImage
+                      ? 'bg-black/45'
+                      : 'bg-[radial-gradient(circle_at_top,#334155,#020617_65%)]'
+                  "
                 />
 
-                <button
-                  class="absolute bottom-2 right-2 h-5 w-5 rounded-full border border-white/30 bg-emerald-300/80"
-                  @pointerdown.stop="startResizing"
-                />
+                <div
+                  :style="heroLayoutStyle"
+                  class="absolute z-10 flex cursor-move touch-none select-none rounded-3xl border-2 border-dashed border-emerald-300/70 text-center shadow-[0_0_0_1px_rgba(15,23,42,0.35)]"
+                  @pointerdown="startDragging"
+                >
+                  <HomeScreenHeroContent
+                    :title="welcomeTitle"
+                    :subtitle="welcomeSubtitle"
+                    :title-font-size="heroTextStyle.titleFontSize"
+                    :title-color="heroTextStyle.titleColor"
+                    :title-font-family="heroTextStyle.titleFontFamily"
+                    :title-font-weight="heroTextStyle.titleFontWeight"
+                    :subtitle-font-size="heroTextStyle.subtitleFontSize"
+                    :subtitle-color="heroTextStyle.subtitleColor"
+                    :subtitle-font-family="heroTextStyle.subtitleFontFamily"
+                    :subtitle-font-weight="heroTextStyle.subtitleFontWeight"
+                    :content-align="heroTextStyle.contentAlign"
+                    :primary-button-color="heroTextStyle.primaryButtonColor"
+                    :use-glass-effect="heroTextStyle.useGlassEffect"
+                  />
+
+                  <button
+                    class="absolute bottom-2 right-2 h-5 w-5 rounded-full border border-white/30 bg-emerald-300/80"
+                    @pointerdown.stop="startResizing"
+                  />
+                </div>
               </div>
             </div>
           </div>
+
+          <div class="pointer-events-none absolute inset-x-0 bottom-0 flex justify-center p-4">
+            <div class="rounded-full border border-white/10 bg-slate-950/80 px-3 py-1 text-xs text-slate-400 backdrop-blur-md">
+              Canvas matches the home screen stage
+            </div>
+          </div>
         </div>
-        <p class="mt-3 text-xs text-slate-400">
-          Drag the overlay to reposition it. Drag the green handle to resize it.
-        </p>
       </div>
     </div>
   </section>
 </template>
 
 <script lang="ts" setup>
+const emit = defineEmits<{
+  (e: 'show-videos'): void;
+}>();
+
 import {
   BACKGROUND_STORAGE_KEY,
   DEFAULT_HERO_LAYOUT,

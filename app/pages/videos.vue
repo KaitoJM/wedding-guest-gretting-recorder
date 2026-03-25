@@ -1,6 +1,7 @@
 <template>
   <div class="min-h-screen bg-slate-950 text-white">
     <div
+      v-if="activeTab === 'Videos'"
       class="mx-auto flex min-h-screen w-full max-w-7xl flex-col px-4 py-6 sm:px-6"
     >
       <div
@@ -19,12 +20,12 @@
           </p>
         </div>
 
-        <nav class="flex rounded-full border border-white/10 bg-white/5 p-1">
+        <nav class="flex w-full max-w-md rounded-full border border-white/10 bg-white/5 p-1">
           <button
             v-for="item in navItems"
             :key="item"
             :class="[
-              'rounded-full px-4 py-2 text-sm font-medium transition',
+              'flex-1 rounded-full px-4 py-2 text-sm font-medium transition',
               activeTab === item
                 ? 'bg-emerald-400 text-slate-950'
                 : 'text-slate-300 hover:bg-white/5 hover:text-white',
@@ -36,8 +37,13 @@
         </nav>
       </div>
 
-      <SavedVideoList v-if="activeTab === 'Videos'" :videos="videos" />
-      <HomeScreenConfigurator v-else />
+      <SavedVideoList :videos="videos" />
+    </div>
+
+    <div v-else class="h-screen overflow-hidden p-0">
+      <div class="h-full p-0">
+        <HomeScreenConfigurator @show-videos="activeTab = 'Videos'" />
+      </div>
     </div>
   </div>
 </template>
