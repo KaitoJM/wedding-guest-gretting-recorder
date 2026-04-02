@@ -28,20 +28,6 @@
       >
         Record Now
       </span>
-
-      <NuxtLink
-        v-if="useLinks"
-        to="/videos"
-        class="rounded-full border border-white/20 bg-white/10 px-6 py-3 text-white transition hover:bg-white/15"
-      >
-        Manage Media
-      </NuxtLink>
-      <span
-        v-else
-        class="rounded-full border border-white/20 bg-white/10 px-6 py-3 text-white"
-      >
-        Manage Media
-      </span>
     </div>
   </div>
 </template>
@@ -107,7 +93,7 @@ const actionsClass = computed(() => {
 const glassEffectClass = computed(() =>
   props.useGlassEffect
     ? "border border-white/10 bg-white/10 backdrop-blur-md"
-    : ""
+    : "",
 );
 
 const titleStyleObject = computed(() => ({
