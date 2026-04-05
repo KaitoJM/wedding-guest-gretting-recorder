@@ -64,8 +64,18 @@ const formattedTime = computed(() => {
 });
 
 const stream: MediaStream = await navigator.mediaDevices.getUserMedia({
-  video: true,
-  audio: true,
+  video: {
+    width: { ideal: 1920, min: 1280 },
+    height: { ideal: 1080, min: 720 },
+    frameRate: { ideal: 30, min: 24 },
+    facingMode: "user",
+  },
+  audio: {
+    sampleRate: 44100,
+    channelCount: 2,
+    echoCancellation: true,
+    noiseSuppression: true,
+  },
 });
 
 let recorder: MediaRecorder | null = null;
@@ -75,7 +85,41 @@ let recordingInterval: NodeJS.Timeout | null = null;
 let returningInterval: NodeJS.Timeout | null = null;
 
 const start = async () => {
-  recorder = new MediaRecorder(stream);
+  // Configure MediaRecorder for high quality recording, preferring MP4
+  const options: MediaRecorderOptions = {
+    videoBitsPerSecond: 8000000, // 8 Mbps for high quality video
+    audioBitsPerSecond: 128000, // 128 kbps for audio
+  };
+
+  // Try MP4 first for better compatibility and quality preservation
+  const mp4Codecs = [
+    "video/mp4;codecs=h264,aac",
+    "video/mp4;codecs=avc1,aac",
+    "video/mp4",
+  ];
+  for (const codec of mp4Codecs) {
+    if (MediaRecorder.isTypeSupported(codec)) {
+      options.mimeType = codec;
+      break;
+    }
+  }
+
+  // Fallback to high-quality WebM if MP4 not supported
+  if (!options.mimeType) {
+    const webmCodecs = [
+      "video/webm;codecs=vp9,opus",
+      "video/webm;codecs=vp8,opus",
+      "video/webm",
+    ];
+    for (const codec of webmCodecs) {
+      if (MediaRecorder.isTypeSupported(codec)) {
+        options.mimeType = codec;
+        break;
+      }
+    }
+  }
+
+  recorder = new MediaRecorder(stream, options);
   recorder.ondataavailable = (e) => chunks.push(e.data);
   recorder.start();
 
@@ -94,8 +138,9 @@ const stop = () => {
 
   recorder.stop();
   recorder.onstop = async () => {
-    const blob = new Blob(chunks, { type: "video/webm" });
-    console.log(blob);
+    const mimeType = recorder?.mimeType || "video/webm";
+    const blob = new Blob(chunks, { type: mimeType });
+    console.log("Recording complete. Blob size:", blob.size, "Type:", mimeType);
     await videoComposable.saveVideo(blob);
     chunks = [];
 

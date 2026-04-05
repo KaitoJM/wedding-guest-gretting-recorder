@@ -1,56 +1,64 @@
-import { useRuntimeConfig } from '#imports';
+import { useRuntimeConfig } from '#imports'
 
 class VideoService {
   private getApiURL() {
-    const config = useRuntimeConfig();
-    return config.public.serverAPI;
+    const config = useRuntimeConfig()
+    return config.public.serverAPI
   }
 
   async getVideos(): Promise<{ videos: string[] }> {
-    const apiURL = this.getApiURL();
+    const apiURL = this.getApiURL()
 
     try {
       const response = await fetch(`${apiURL}/videos`, {
-        method: 'GET',
-      });
+        method: 'GET'
+      })
 
       if (!response.ok) {
-        throw new Error(`Failed to fetch videos: ${response.statusText}`);
+        throw new Error(`Failed to fetch videos: ${response.statusText}`)
       }
 
-      const videos = await response.json();
-      return videos;
+      const videos = await response.json()
+      return videos
     } catch (error) {
-      console.error('Error fetching videos:', error);
-      throw error;
+      console.error('Error fetching videos:', error)
+      throw error
     }
   }
 
   async saveVideo(videoBlob: Blob): Promise<void> {
-    const apiURL = this.getApiURL();
+    const apiURL = this.getApiURL()
 
     try {
-      const formData = new FormData();
-      formData.append('video', videoBlob, 'video.webm');
+      // Determine file extension based on MIME type
+      let extension = 'webm' // default
+      if (videoBlob.type.includes('mp4')) {
+        extension = 'mp4'
+      } else if (videoBlob.type.includes('webm')) {
+        extension = 'webm'
+      }
+
+      const formData = new FormData()
+      formData.append('video', videoBlob, `video.${extension}`)
 
       const response = await fetch(`${apiURL}/upload`, {
         method: 'POST',
-        body: formData,
-      });
+        body: formData
+      })
 
       if (!response.ok) {
-        throw new Error(`Upload failed: ${response.statusText}`);
+        throw new Error(`Upload failed: ${response.statusText}`)
       }
 
-      const result = await response.json();
-      console.log('Video uploaded successfully:', result);
+      const result = await response.json()
+      console.log('Video uploaded successfully:', result)
     } catch (error) {
-      console.error('Error saving video:', error);
-      throw error;
+      console.error('Error saving video:', error)
+      throw error
     }
   }
 }
 
-export const videoService = new VideoService();
+export const videoService = new VideoService()
 
-export default videoService;
+export default videoService
