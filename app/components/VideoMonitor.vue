@@ -24,8 +24,21 @@
       {{ formattedTime }}
     </div>
 
+    <div
+      v-if="countDown === 0 && !done"
+      class="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex gap-4"
+    >
+      <button
+        class="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors"
+        @click="stopRecording"
+      >
+        STOP & SAVE
+      </button>
+    </div>
+
     <button
-      class="absolute bottom-4 right-4 bg-red-500 text-white px-4 py-2 rounded"
+      v-if="!done"
+      class="absolute bottom-4 right-4 bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded transition-colors"
       @click="cancelRecord"
     >
       Cancel
@@ -279,6 +292,10 @@ const cancelRecord = () => {
   }
   stream?.getTracks().forEach(t => t.stop())
   router.push('/')
+}
+
+const stopRecording = () => {
+  stop()
 }
 
 const countdownTimer = () => {
